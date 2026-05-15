@@ -16,3 +16,4 @@ Werkzeug==3.1.3
 email-validator==2.0.0
 flask-wtf==1.0.1
 WTforms==3.0.1
+Flask-Mail==0.9.1
