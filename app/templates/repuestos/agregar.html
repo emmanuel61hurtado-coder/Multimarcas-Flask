@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Agregar Repuesto - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:700px;">
+  <div class="mb-4">
+    <a href="{{ url_for('repuestos.index') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER AL INVENTARIO</a>
+  </div>
+
+  <div class="page-header">
+    <h1 class="page-title">Nuevo <span>Repuesto</span></h1>
+    <p class="page-subtitle">Ingresa un nuevo ítem al catálogo de refacciones</p>
+  </div>
+
+  <div class="card-brazo">
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label-brazo">Nombre del Repuesto *</label>
+          <input type="text" name="nombre" class="form-input-brazo" placeholder="Ej: Pastillas de Freno Traseras" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label-brazo">Categoría</label>
+          <input type="text" name="categoria" class="form-input-brazo" placeholder="Ej: Frenos, Motor, Eléctrico">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label-brazo">Marca</label>
+          <input type="text" name="marca" class="form-input-brazo" placeholder="Ej: Brembo, Genérico">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label-brazo">Precio (COP) *</label>
+          <input type="number" name="precio" class="form-input-brazo" value="0" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label-brazo">Stock Inicial *</label>
+          <input type="number" name="stock" class="form-input-brazo" value="0" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label-brazo">Descripción</label>
+          <textarea name="descripcion" class="form-input-brazo" rows="3" placeholder="Detalles técnicos..."></textarea>
+        </div>
+      </div>
+
+      <div class="mt-4 d-flex gap-3">
+        <button type="submit" class="btn-primary-brazo">💾 Guardar Repuesto</button>
+        <a href="{{ url_for('repuestos.index') }}" class="btn-outline-brazo">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

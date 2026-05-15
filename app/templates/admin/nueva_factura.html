@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Factura - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        {% if cita_previa %}
+        <a href="{{ url_for('admin.citas') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER A CITAS</a>
+        {% else %}
+        <a href="{{ url_for('admin.facturas') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER A FACTURAS</a>
+        {% endif %}
+        <h2 class="page-title" style="margin:0;">Nueva <span>Factura</span></h2>
+    </div>
+
+    <form action="{{ url_for('admin.guardar_factura') }}" method="POST">
+        <div class="row g-4">
+            <!-- DATOS GENERALES -->
+            <div class="col-md-4">
+                <div class="card-brazo h-100" style="border-top: 3px solid var(--red);">
+                    <h5 class="mb-4" style="font-weight: 800; font-size: 14px; letter-spacing: 1px; color: var(--accent);">DATOS DEL SERVICIO</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label-brazo">NÚMERO FACTURA</label>
+                        <input type="text" name="numero" class="form-input-brazo" value="{{ sugerido }}" required>
+                        <input type="hidden" name="cita_id" value="{{ cita_previa.id if cita_previa else '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label-brazo">CLIENTE</label>
+                        <select name="cliente_id" class="form-input-brazo" required>
+                            <option value="">Seleccione cliente...</option>
+                            {% for u in usuarios %}
+                            <option value="{{ u.id }}" {{ 'selected' if cita_previa and cita_previa.user_id == u.id }}>{{ u.nombre_completo }} (@{{ u.username }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label-brazo">VEHÍCULO (Opcional)</label>
+                        <select name="moto_id" class="form-input-brazo">
+                            <option value="">Seleccione vehículo...</option>
+                            {% for m in motos %}
+                            <option value="{{ m.id }}" {{ 'selected' if cita_previa and cita_previa.moto_id == m.id }}>{{ m.placa }} - {{ m.marca }} {{ m.modelo }} ({{ m.propietario.username }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label-brazo">MECÁNICO / EMPLEADO</label>
+                        <select name="empleado_id" class="form-input-brazo" required>
+                            <option value="">Seleccione mecánico...</option>
+                            {% for e in empleados %}
+                            <option value="{{ e.id }}">{{ e.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label-brazo">MÉTODO DE PAGO</label>
+                        <select name="metodo_pago" class="form-input-brazo">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="transferencia">Transferencia Bancaria</option>
+                            <option value="tarjeta">Tarjeta de Crédito/Débito</option>
+                            <option value="nequi">Nequi / Daviplata</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ITEMS DE FACTURA -->
+            <div class="col-md-8">
+                <div class="card-brazo h-100" style="border-top: 3px solid var(--red);">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 style="font-weight: 800; font-size: 14px; letter-spacing: 1px;">DETALLE DE COBROS</h5>
+                        <button type="button" class="btn btn-sm btn-outline-warning" onclick="agregarFila()">+ AGREGAR ITEM</button>
+                                        <div id="items-container">
+                        <!-- Fila inicial de repuestos -->
+                        <div class="item-row card-brazo p-3 mb-3 bg-dark bg-opacity-25 border border-secondary border-opacity-10 position-relative">
+                            <div class="row g-2">
+                                <div class="col-12 col-md-6">
+                                    <label class="small text-muted mb-1">DESCRIPCIÓN / REPUESTO</label>
+                                    <input type="text" list="repuestos-list" name="desc[]" class="form-input-brazo form-input-sm input-desc" placeholder="Busca o escribe...">
+                                </div>
+                                <div class="col-4 col-md-2">
+                                    <label class="small text-muted mb-1">CANT.</label>
+                                    <input type="number" name="cant[]" class="form-input-brazo form-input-sm input-cant" value="1" min="1" onchange="calcularSubtotal(this)">
+                                </div>
+                                <div class="col-8 col-md-4">
+                                    <label class="small text-muted mb-1">PRECIO</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-dark border-secondary text-muted">$</span>
+                                        <input type="number" name="precio[]" class="form-input-brazo form-input-sm input-precio" step="0.01" onchange="calcularSubtotal(this)">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-10">
+                                <div class="text-accent fw-bold small">SUBTOTAL: <span class="line-subtotal">$ 0.00</span></div>
+                                <button type="button" class="btn btn-sm btn-outline-danger" style="padding: 2px 8px; font-size: 10px;" onclick="eliminarFila(this)">
+                                    <i class="fas fa-trash-alt me-1"></i> ELIMINAR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datalist oculto con todos los repuestos -->
+                    <datalist id="repuestos-list">
+                        {% for r in repuestos %}
+                        <option value="{{ r.nombre }}" data-precio="{{ r.precio }}"></option>
+                        {% endfor %}
+                    </datalist>   </div>
+
+                    <div class="mt-4 pt-4 border-top border-secondary">
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-7">
+                                <div class="p-3" style="background: rgba(232, 0, 13, 0.05); border: 1px dashed var(--red); border-radius: 4px;">
+                                    <label class="form-label-brazo mb-1" style="color: var(--accent);">VALOR DEL TRABAJO / MANO DE OBRA</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-dark border-secondary text-accent">$</span>
+                                        <input type="number" name="mano_obra" id="input-mano-obra" class="form-input-brazo font-weight-bold" placeholder="0.00" step="0.01" value="0" oninput="actualizarTotales()">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">SUBTOTAL REPUESTOS:</span>
+                                    <span id="subtotal-repuestos">$ 0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">VALOR TRABAJO:</span>
+                                    <span id="label-mano-obra">$ 0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between pt-2 border-top" style="font-size: 20px; font-weight: 900; color: #00ff88;">
+                                    <span>TOTAL FACTURA:</span>
+                                    <span id="grand-total">$ 0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn-primary-brazo px-5">
+                            <i class="fas fa-save"></i> GUARDAR Y EMITIR FACTURA
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function agregarFila() {
+    const container = document.getElementById('items-container');
+    const div = document.createElement('div');
+    div.className = 'item-row card-brazo p-3 mb-3 bg-dark bg-opacity-25 border border-secondary border-opacity-10 position-relative';
+    div.innerHTML = `
+        <div class="row g-2">
+            <div class="col-12 col-md-6">
+                <label class="small text-muted mb-1">DESCRIPCIÓN / REPUESTO</label>
+                <input type="text" list="repuestos-list" name="desc[]" class="form-input-brazo form-input-sm input-desc" placeholder="Busca o escribe..." required>
+            </div>
+            <div class="col-4 col-md-2">
+                <label class="small text-muted mb-1">CANT.</label>
+                <input type="number" name="cant[]" class="form-input-brazo form-input-sm input-cant" value="1" min="1" onchange="calcularSubtotal(this)">
+            </div>
+            <div class="col-8 col-md-4">
+                <label class="small text-muted mb-1">PRECIO</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-dark border-secondary text-muted">$</span>
+                    <input type="number" name="precio[]" class="form-input-brazo form-input-sm input-precio" step="0.01" onchange="calcularSubtotal(this)" required>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-secondary border-opacity-10">
+            <div class="text-accent fw-bold small">SUBTOTAL: <span class="line-subtotal">$ 0.00</span></div>
+            <button type="button" class="btn btn-sm btn-outline-danger" style="padding: 2px 8px; font-size: 10px;" onclick="eliminarFila(this)">
+                <i class="fas fa-trash-alt me-1"></i> ELIMINAR
+            </button>
+        </div>
+    `;
+    container.appendChild(div);
+    attachAutocomplete(div.querySelector('.input-desc'));
+}
+
+function attachAutocomplete(inputDesc) {
+    inputDesc.addEventListener('input', function() {
+        const val = this.value;
+        const options = document.getElementById('repuestos-list').options;
+        for(let i=0; i<options.length; i++) {
+            if(options[i].value === val) {
+                const row = this.closest('.item-row');
+                const priceInput = row.querySelector('.input-precio');
+                // Autocompletar el precio
+                priceInput.value = options[i].getAttribute('data-precio');
+                calcularSubtotal(priceInput);
+                break;
+            }
+        }
+    });
+}
+
+// Attach a la primera fila al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.input-desc').forEach(attachAutocomplete);
+});
+
+function eliminarFila(btn) {
+    const row = btn.closest('.item-row');
+    if (document.querySelectorAll('.item-row').length > 1) {
+        row.remove();
+        actualizarTotales();
+    }
+}
+
+function calcularSubtotal(input) {
+    const row = input.closest('.item-row');
+    const cant = row.querySelector('.input-cant').value || 0;
+    const precio = row.querySelector('.input-precio').value || 0;
+    const subtotal = cant * precio;
+    row.querySelector('.line-subtotal').innerText = '$ ' + subtotal.toLocaleString('en-US', {minimumFractionDigits: 2});
+    actualizarTotales();
+}
+
+function actualizarTotales() {
+    let subtotalRep = 0;
+    
+    // Sumar items de repuestos
+    document.querySelectorAll('.line-subtotal').forEach(cell => {
+        const val = parseFloat(cell.innerText.replace('$', '').replace(',', '')) || 0;
+        subtotalRep += val;
+    });
+
+    // Obtener Mano de Obra
+    const manoObra = parseFloat(document.getElementById('input-mano-obra').value) || 0;
+    
+    const total = subtotalRep + manoObra;
+    
+    document.getElementById('subtotal-repuestos').innerText = '$ ' + subtotalRep.toLocaleString('en-US', {minimumFractionDigits: 2});
+    document.getElementById('label-mano-obra').innerText = '$ ' + manoObra.toLocaleString('en-US', {minimumFractionDigits: 2});
+    document.getElementById('grand-total').innerText = '$ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2});
+}
+</script>
+{% endblock %}

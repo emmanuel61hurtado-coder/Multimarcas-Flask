@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Nueva Cita - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px;padding-bottom:80px;max-width:680px;">
+  <div class="page-header">
+    <a href="{{ url_for('admin.citas') }}" class="btn-back-striking">⬅️ Volver</a>
+    <h1 class="page-title">Nueva <span>Cita</span></h1>
+    <p class="page-subtitle">Programa tu servicio de mantenimiento</p>
+  </div>
+
+  {% if not motos %}
+  <div style="background:rgba(232,0,13,0.08);border:1px solid rgba(232,0,13,0.2);border-radius:var(--radius-lg);padding:24px;text-align:center;margin-bottom:32px;">
+    <div style="font-size:36px;margin-bottom:12px;">🏍️</div>
+    <p style="color:var(--text-muted);margin-bottom:16px;">Primero debes registrar una moto para poder agendar una cita.</p>
+    <a href="{{ url_for('motos.agregar') }}" class="btn-primary-brazo">＋ Agregar Moto</a>
+  </div>
+  {% else %}
+  <form method="POST" class="form-brazo">
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label-brazo">Moto *</label>
+        <select name="moto_id" class="form-input-brazo" required>
+          <option value="">Selecciona tu moto</option>
+          {% for moto in motos %}
+          <option value="{{ moto.id }}">{{ moto.marca }} {{ moto.modelo }} — {{ moto.placa }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Fecha *</label>
+        <input type="date" name="fecha" class="form-input-brazo" required
+               min="{{ now().strftime('%Y-%m-%d') if now else '' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Hora *</label>
+        <input type="time" name="hora" class="form-input-brazo" required min="08:00" max="18:00">
+      </div>
+      <div class="col-12">
+        <label class="form-label-brazo">Tipo de Servicio *</label>
+        <select name="tipo_servicio" class="form-input-brazo" required>
+          <option value="">Selecciona el servicio</option>
+          <option>Mantenimiento Preventivo</option>
+          <option>Cambio de Aceite</option>
+          <option>Revisión General</option>
+          <option>Mecánica Especializada</option>
+          <option>Electricidad</option>
+          <option>Lavado y Detallado</option>
+          <option>Frenos</option>
+          <option>Suspensión</option>
+          <option>Motor</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <label class="form-label-brazo">Descripción Adicional</label>
+        <textarea name="descripcion" class="form-input-brazo" rows="4"
+                  placeholder="Describe el problema o servicio que necesitas..."></textarea>
+      </div>
+      <div class="col-12" style="margin-top:8px;">
+        <button type="submit" class="btn-primary-brazo">📅 Agendar Cita</button>
+      </div>
+    </div>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

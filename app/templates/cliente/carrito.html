@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Carrito - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="page-header text-center mb-5">
+        <h1 class="page-title">Mi <span>Carrito</span></h1>
+        <p class="page-subtitle">Revisa los repuestos antes de confirmar tu pedido</p>
+    </div>
+    <div class="mb-4">
+        <a href="{{ url_for('repuestos.index') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+    </div>
+
+    {% if items %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card-brazo p-4 shadow-sm" style="border-radius: 20px;">
+                <div class="cart-items-list">
+                    {% for item in items %}
+                    <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded bg-dark bg-opacity-50 border border-secondary border-opacity-10 position-relative">
+                        <div class="flex-grow-1">
+                            <div style="font-weight: 700; color: var(--white); font-size: 1.1rem;">{{ item.repuesto.nombre }}</div>
+                            <small class="text-muted d-block">{{ item.repuesto.marca }}</small>
+                            <div class="mt-2 d-flex align-items-center gap-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <a href="{{ url_for('carrito.cambiar_cantidad', rid=item.repuesto.id, accion='menos') }}" class="btn btn-sm btn-outline-secondary" style="width:25px; height:25px; padding:0; line-height:23px; font-size: 12px;">−</a>
+                                    <span style="font-weight: 800; font-size: 1rem; min-width: 20px; text-align: center;">{{ item.cantidad }}</span>
+                                    <a href="{{ url_for('carrito.cambiar_cantidad', rid=item.repuesto.id, accion='mas') }}" class="btn btn-sm btn-outline-light" style="width:25px; height:25px; padding:0; line-height:23px; font-size: 12px;">+</a>
+                                </div>
+                                <div class="text-muted small">x $ {{ "{:,.0f}".format(item.repuesto.precio) }}</div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div style="font-weight: 900; color: var(--accent); font-size: 1.2rem;">$ {{ "{:,.0f}".format(item.subtotal) }}</div>
+                            <a href="{{ url_for('carrito.eliminar', rid=item.repuesto.id) }}" class="text-danger mt-2 d-inline-block" title="Eliminar">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('repuestos.index') }}" class="btn btn-link text-muted" style="text-decoration: none;">
+                        <i class="fas fa-arrow-left me-2"></i> Seguir comprando
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <form action="{{ url_for('carrito.checkout') }}" method="POST" class="card-brazo p-4 shadow-sm" style="border-radius: 20px; border-top: 5px solid var(--red);">
+                <h4 class="mb-4" style="font-family: var(--font-display); font-weight: 900; font-style: italic;">RESUMEN Y ENTREGA</h4>
+                
+                <div class="mb-4">
+                    <label class="form-label-brazo d-block mb-3">¿Cómo quieres recibirlo?</label>
+                    
+                    <div class="form-check mb-3 p-2 border rounded" style="border-color: rgba(255,255,255,0.1) !important;">
+                        <input class="form-check-input ms-0" type="radio" name="metodo_entrega" id="metodoTaller" value="Taller" checked onchange="toggleDireccionCart()">
+                        <label class="form-check-label ms-2" for="metodoTaller">
+                            <span style="font-weight: 700;">🏠 Comprar en el taller</span><br>
+                            <small class="text-muted">Retiras personalmente.</small>
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mb-3 p-2 border rounded" style="border-color: rgba(255,255,255,0.1) !important;">
+                        <input class="form-check-input ms-0" type="radio" name="metodo_entrega" id="metodoEnvio" value="Envío" onchange="toggleDireccionCart()">
+                        <label class="form-check-label ms-2" for="metodoEnvio">
+                            <span style="font-weight: 700;">🚚 Envío a domicilio</span><br>
+                            <small class="text-muted">Flete contraentrega.</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="seccionDireccionCart" style="display: none;" class="mb-4">
+                    <label class="form-label-brazo">Dirección de Envío</label>
+                    <input type="text" name="direccion" id="inputDireccionCart" class="form-input-brazo" placeholder="Ciudad, Barrio, Dirección...">
+                    <small class="text-info mt-1 d-block"><i class="fas fa-info-circle"></i> El envío se paga contraentrega.</small>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-brazo">Teléfono de contacto</label>
+                    <input type="text" name="telefono" class="form-input-brazo" value="{{ current_user.telefono or '' }}" required>
+                </div>
+                
+                <hr style="border-color: var(--border);">
+                
+                <div class="d-flex justify-content-between mb-4">
+                    <span style="font-weight: 700; font-size: 1.2rem;">TOTAL PRODUCTOS</span>
+                    <span style="font-weight: 900; font-size: 1.5rem; color: var(--accent);">$ {{ "{:,.0f}".format(total) }}</span>
+                </div>
+                
+                <div class="alert alert-warning p-2" style="font-size: 0.8rem; border-radius: 10px;">
+                    <i class="fas fa-handshake"></i> El pago se coordina manualmente tras realizar el pedido.
+                </div>
+
+                <button type="submit" class="btn-primary-brazo w-100 py-3" style="font-size: 1.1rem; border-radius: 50px;">
+                    🏁 Confirmar Pedido
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+    function toggleDireccionCart() {
+        const isEnvio = document.getElementById('metodoEnvio').checked;
+        const seccion = document.getElementById('seccionDireccionCart');
+        const input = document.getElementById('inputDireccionCart');
+        
+        if (isEnvio) {
+            seccion.style.display = 'block';
+            input.required = true;
+        } else {
+            seccion.style.display = 'none';
+            input.required = false;
+        }
+    }
+    </script>
+    {% else %}
+    <div class="text-center py-5 card-brazo">
+        <div style="font-size: 60px; margin-bottom: 20px;">🛒</div>
+        <h3 style="font-family: var(--font-display); font-weight: 800;">Tu carrito está vacío</h3>
+        <p class="text-muted mb-4">Explora nuestro catálogo y encuentra lo que tu moto necesita.</p>
+        <a href="{{ url_for('repuestos.index') }}" class="btn-primary-brazo px-5">Ver Repuestos</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

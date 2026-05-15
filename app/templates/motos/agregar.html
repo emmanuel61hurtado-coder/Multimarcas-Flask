@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar Moto{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:600px;">
+
+  <div class="mb-4">
+    <a href="{{ url_for('motos.index') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+  </div>
+
+  <div class="page-header">
+    <h1 class="page-title">Agregar <span>Moto</span></h1>
+    <p class="page-subtitle">Registra un nuevo vehículo en la escudería</p>
+  </div>
+
+  <div class="card-brazo">
+    <form method="POST">
+
+      <div class="mb-3">
+        <label class="form-label-brazo">Marca</label>
+        <input type="text" name="marca" class="form-input-brazo" placeholder="Ej: Yamaha, Kawasaki..." required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label-brazo">Modelo</label>
+        <input type="text" name="modelo" class="form-input-brazo" placeholder="Ej: R1, Ninja 400..." required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label-brazo">Placa</label>
+        <input type="text" name="placa" class="form-input-brazo" placeholder="ABC-123" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label-brazo">Año</label>
+        <input type="number" name="año" class="form-input-brazo" placeholder="2024">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label-brazo">Color</label>
+        <input type="text" name="color" class="form-input-brazo" placeholder="Ej: Negro Mate">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label-brazo">Cilindraje</label>
+        <input type="text" name="cilindraje" class="form-input-brazo" placeholder="Ej: 600cc">
+      </div>
+
+      <div class="d-flex gap-3 mt-4">
+        <button class="btn-primary-brazo">
+          ➕ Guardar Vehículo
+        </button>
+        <a href="{{ url_for('motos.index') }}" class="btn-outline-brazo">
+          Cancelar
+        </a>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

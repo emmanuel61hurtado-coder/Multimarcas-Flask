@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Sobre Nosotros - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="page-header text-center mb-5">
+    <div class="mb-3">
+      <a href="{{ url_for('cliente.dashboard') if current_user.is_authenticated else url_for('home.index') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+    </div>
+    <h1 class="page-title">Pasión y <span>Dedicación</span></h1>
+    <p class="page-subtitle">Conoce al equipo que se esfuerza cada día por tu seguridad</p>
+  </div>
+
+  <div class="row g-5 align-items-center mb-5">
+    <div class="col-lg-6">
+      <div class="card-brazo p-5 shadow-lg overflow-hidden" style="position: relative;">
+        <div style="position: absolute; top: -20px; right: -20px; font-size: 150px; opacity: 0.05; color: var(--red); font-family: var(--font-display); font-weight: 900; font-style: italic;">BRAZO</div>
+        <h2 style="font-family: var(--font-display); font-weight: 950; font-style: italic; transform: var(--racer-skew); color: var(--red); margin-bottom: 30px;">Nuestra Empresa</h2>
+        <p style="font-size: 16px; line-height: 1.8; color: var(--text);">
+          <strong>Multimarcas Brazo</strong> nació de un sueño compartido: elevar el estándar del servicio mecánico para motocicletas. No somos solo un negocio; somos una comunidad de apasionados por las dos ruedas.
+        </p>
+        <p style="font-size: 16px; line-height: 1.8; color: var(--text-muted); margin-top: 20px;">
+          Cada arreglo, desde el más pequeño ajuste hasta la reconstrucción total de un motor, se realiza con un <strong>esfuerzo incansable</strong>. Para nosotros, no hay atajos; solo hay resultados que garanticen tu tranquilidad en el asfalto.
+        </p>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="row g-4">
+        <div class="col-12">
+          <div class="card-brazo p-4 shadow-sm" style="border-left: 4px solid var(--gold);">
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--gold); margin-bottom: 10px;">Dedicación Absoluta</h4>
+            <p class="text-muted" style="font-size: 14px;">Entregamos el 100% de nuestra capacidad técnica en cada moto que entra a nuestro taller. La excelencia no es opcional.</p>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="card-brazo p-4 shadow-sm" style="border-left: 4px solid var(--red);">
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--red); margin-bottom: 10px;">Honestidad Transparente</h4>
+            <p class="text-muted" style="font-size: 14px;">Diagnósticos claros y precios justos. Creemos en construir relaciones a largo plazo basadas en la confianza mutua.</p>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="card-brazo p-4 shadow-sm" style="border-left: 4px solid var(--gold);">
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--gold); margin-bottom: 10px;">Pasión Mecánica</h4>
+            <p class="text-muted" style="font-size: 14px;">Amamos las motos tanto como tú. Esa pasión es el motor que nos impulsa a mejorar cada día.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center py-5 card-brazo" style="background: var(--bg-card2); border: 2px dashed var(--border);">
+    <h3 style="font-family: var(--font-display); font-weight: 900; font-style: italic; transform: var(--racer-skew);">"Tu seguridad es nuestro podio"</h3>
+    <p class="text-muted mt-2">Equipo Multimarcas Brazo</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Editar Moto - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px;padding-bottom:80px;max-width:680px;">
+  <div class="page-header">
+    <a href="{{ url_for('admin.citas') }}" class="btn-back-striking">⬅️ Volver</a>
+    <h1 class="page-title">Editar <span>Moto</span></h1>
+    <p class="page-subtitle">{{ moto.marca }} {{ moto.modelo }} — {{ moto.placa }}</p>
+  </div>
+
+  <form method="POST" class="form-brazo">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label-brazo">Marca</label>
+        <input type="text" name="marca" class="form-input-brazo" value="{{ moto.marca }}" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Modelo</label>
+        <input type="text" name="modelo" class="form-input-brazo" value="{{ moto.modelo }}" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Placa (no editable)</label>
+        <input type="text" class="form-input-brazo" value="{{ moto.placa }}" disabled style="opacity:0.5;">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Año</label>
+        <input type="number" name="año" class="form-input-brazo" value="{{ moto.año or '' }}" min="1980" max="2025">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Color</label>
+        <input type="text" name="color" class="form-input-brazo" value="{{ moto.color or '' }}">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Cilindraje</label>
+        <input type="text" name="cilindraje" class="form-input-brazo" value="{{ moto.cilindraje or '' }}">
+      </div>
+      <div class="col-12" style="margin-top:8px;">
+        <button type="submit" class="btn-primary-brazo">💾 Guardar Cambios</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

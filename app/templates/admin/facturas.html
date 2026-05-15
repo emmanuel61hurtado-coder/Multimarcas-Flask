@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de Facturación - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- CABECERA -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i>
+                VOLVER</a>
+            <div>
+                <h2 class="page-title" style="margin:0;">Historial de <span>Facturación</span></h2>
+                <p class="text-muted mb-0" style="font-size: 13px;">Registro contable de servicios prestados</p>
+            </div>
+        </div>
+        <a href="{{ url_for('admin.nueva_factura') }}" class="btn-nav-action">+ NUEVA FACTURA</a>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="card-brazo p-3 mb-4" style="border-left: 4px solid var(--red);">
+        <form action="{{ url_for('admin.facturas') }}" method="GET" class="row g-2 align-items-center">
+            <div class="col-md-9">
+                <input type="text" name="q" class="form-input-brazo"
+                    placeholder="Buscar por # de factura, cliente o placa..." value="{{ search_query or '' }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn-nav-action w-100">BUSCAR FACTURA</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- STATS RÁPIDAS -->
+    <div class="row g-3 mb-4">
+        {% for cat_name, facturas_cat in categorias.items() %}
+        <div class="col-6 col-md-auto" style="flex: 1;">
+            <div class="card-brazo p-3 text-center stat-card {% if loop.first %}active{% endif %}"
+                id="card-{{ loop.index }}" onclick="toggleSection('section-{{ loop.index }}', this)"
+                style="border-top: 3px solid var(--accent); cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:24px;font-weight:900;">{{ facturas_cat|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:9px;">{{ cat_name | upper }}</small>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="col-12 col-md-auto" style="flex: 1;">
+            <div class="card-brazo p-3 text-center stat-card" id="card-total" onclick="showAllSections(this)"
+                style="border-top: 3px solid var(--red); cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:24px;font-weight:900; color: var(--text);">{{ facturas|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:9px;">MOSTRAR TODO</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- MACRO RENDER CARD -->
+    {% macro render_factura_card(f) %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card-brazo p-4 h-100 position-relative overflow-hidden" style="border-top: 3px solid var(--red);">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-dark border border-secondary text-white"
+                    style="font-size: 12px; font-family: var(--font-display); transform: skewX(-10deg);">
+                    {{ f.numero }}
+                </span>
+                <div style="font-size: 11px; color: var(--text-muted);">
+                    <i class="far fa-calendar-alt me-1"></i> {{ f.fecha.strftime('%d/%m/%Y %H:%M') }}
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div style="font-weight: 800; font-size: 16px; color: var(--text);">{{ f.user.nombre_completo }}</div>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <span
+                        style="background: var(--red); color: white; padding: 2px 8px; border-radius: 3px; font-weight: 900; font-size: 11px; transform: skewX(-10deg);">
+                        {{ f.moto.placa if f.moto else 'SIN PLACA' }}
+                    </span>
+                    <span class="text-muted small">{{ f.moto.marca if f.moto else '' }}</span>
+                </div>
+            </div>
+
+            <div
+                class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-secondary border-opacity-10">
+                <div>
+                    <div
+                        style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">
+                        MÉTODO: {{ f.metodo_pago }}</div>
+                    <div style="color: #00ff88; font-weight: 900; font-family: var(--font-display); font-size: 18px;">$
+                        {{ "{:,.0f}".format(f.total) }}</div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-info" title="Ver Detalle" data-bs-toggle="modal"
+                        data-bs-target="#modalFactura{{ f.id }}">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <form action="{{ url_for('admin.eliminar_factura', fid=f.id) }}" method="POST" style="margin:0;">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar"
+                            onclick="return confirm('¿Eliminar factura?');">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endmacro %}
+
+    <!-- SECCIONES DINÁMICAS -->
+    {% if categorias %}
+    {% for cat_name, facturas_cat in categorias.items() %}
+    {% set section_display = 'block' if loop.first else 'none' %}
+    {% set section_style = 'style="display: ' ~ section_display ~ ';"' %}
+    <div id="section-{{ loop.index }}" class="factura-section" {{ section_style | safe }}>
+        <h4 class="mb-4" style="color:var(--accent); font-family:var(--font-display); font-weight:900; font-style:italic;">{{ cat_name | upper }}</h4>
+        <div class="row g-4 mb-5">
+            {% for f in facturas_cat %}
+            {{ render_factura_card(f) }}
+            {% else %}
+            <p class="text-muted">No se encontraron facturas para esta categoría.</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="row g-4">
+        <div class="col-12 text-center py-5 card-brazo">
+            <i class="fas fa-file-invoice-dollar fa-3x text-muted mb-3 opacity-25"></i>
+            <h5 class="text-muted">No se han generado facturas en este historial.</h5>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- MODALES DE DETALLE DE FACTURA -->
+{% for f in facturas %}
+<div class="modal fade" id="modalFactura{{ f.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"
+            style="background: var(--bg-card); color: var(--text); border: 1px solid var(--border);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border);">
+                <h5 class="modal-title" style="font-family: var(--font-display); font-weight: 800; font-style: italic;">
+                    DETALLE DE FACTURA {{ f.numero }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <h4 style="color:var(--red); font-weight:900;">MULTIMARCAS BRAZO</h4>
+                        <p class="text-muted small">NIT: 123.456.789-0<br>Dirección: Calle Ficticia #123<br>Tel: +57 300
+                            000 0000</p>
+                    </div>
+                    <div class="col-6 text-end">
+                        <h6 class="text-muted mb-0">CLIENTE</h6>
+                        <p class="mb-1"><strong>{{ f.user.nombre_completo }}</strong><br>CC: {{ f.user.username }}</p>
+                    </div>
+                </div>
+                <table class="table table-dark table-sm">
+                    <thead>
+                        <tr class="text-muted" style="font-size: 11px;">
+                            <th>DESCRIPCIÓN</th>
+                            <th class="text-center">CANT.</th>
+                            <th class="text-end">P. UNIT</th>
+                            <th class="text-end">SUBTOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in f.items %}
+                        <tr style="font-size: 13px;">
+                            <td>{{ item.descripcion }}</td>
+                            <td class="text-center">{{ item.cantidad }}</td>
+                            <td class="text-end">$ {{ "{:,.2f}".format(item.precio_unitario) }}</td>
+                            <td class="text-end">$ {{ "{:,.2f}".format(item.subtotal) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="row mt-4">
+                    <div class="col-8">
+                        <p class="text-muted small"><strong>MÉTODO DE PAGO:</strong> {{ f.metodo_pago | upper }}</p>
+                    </div>
+                    <div class="col-4 text-end">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">REPUESTOS:</span>
+                            <span>$ {{ "{:,.2f}".format(f.subtotal - (f.items[0].precio_unitario if (f.items|length > 0) and ("Mano de Obra" in f.items[0].descripcion) else 0)) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">VALOR TRABAJO:</span>
+                            <span>$ {{ "{:,.2f}".format(f.items[0].precio_unitario if (f.items|length > 0) and ("Mano de Obra" in f.items[0].descripcion) else 0) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top pt-2"
+                            style="font-size: 18px; font-weight: 900; color: #00ff88;">
+                            <span>TOTAL:</span>
+                            <span>$ {{ "{:,.2f}".format(f.total) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button class="btn btn-warning" onclick="window.print()"><i class="fas fa-print"></i> IMPRIMIR</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+    .stat-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-2px);
+    }
+
+    .stat-card.active {
+        background: rgba(232, 0, 13, 0.1);
+        border-color: var(--red) !important;
+    }
+</style>
+
+<script>
+    function toggleSection(sectionId, element) {
+        document.querySelectorAll('.factura-section').forEach(el => el.style.display = 'none');
+        document.getElementById(sectionId).style.display = 'block';
+
+        document.querySelectorAll('.stat-card').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    function showAllSections(element) {
+        document.querySelectorAll('.factura-section').forEach(el => el.style.display = 'block');
+
+        document.querySelectorAll('.stat-card').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Nuestras Marcas - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="page-header text-center mb-5">
+    <div class="mb-3">
+      <a href="{{ url_for('cliente.dashboard') if current_user.is_authenticated else url_for('home.index') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+    </div>
+    <h1 class="page-title">Dominamos todas las <span>Marcas</span></h1>
+    <p class="page-subtitle">Sin importar el escudo en el tanque, en nuestro taller cada máquina recibe tratamiento de competición</p>
+  </div>
+
+  <div class="row g-4 justify-content-center">
+    {% set marcas = [
+      ('Yamaha', 'Pasión por la velocidad y el diseño japonés.', 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=800&q=80'),
+      ('Honda', 'Fiabilidad absoluta llevada al máximo nivel.', 'https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?auto=format&fit=crop&w=800&q=80'),
+      ('Kawasaki', 'El poder verde de la ingeniería radical.', 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80'),
+      ('Suzuki', 'Precisión y ligereza para cada curva.', 'https://images.unsplash.com/photo-1558981359-219d6364c9c8?auto=format&fit=crop&w=800&q=80'),
+      ('BMW', 'Sofisticación técnica y control superior.', 'https://images.unsplash.com/photo-1558981001-792f6c0d5068?auto=format&fit=crop&w=800&q=80'),
+      ('KTM', 'ADN Ready to Race en cada reparación.', 'https://images.unsplash.com/photo-1558980331-af50b5ca1f61?auto=format&fit=crop&w=800&q=80')
+    ] %}
+
+    {% for nombre, desc, img in marcas %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card-brazo h-100 overflow-hidden shadow-lg" style="border-bottom: 5px solid var(--red);">
+        <div style="height: 180px; overflow: hidden; position: relative;">
+          <img src="{{ img }}" alt="{{ nombre }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
+          <h3 style="position: absolute; bottom: 15px; left: 20px; font-family: var(--font-display); font-weight: 900; font-style: italic; transform: var(--racer-skew); color: white; margin: 0; font-size: 32px;">{{ nombre }}</h3>
+        </div>
+        <div class="p-4">
+          <p class="text-muted" style="font-size: 14px;">
+            En <strong>Multimarcas Brazo</strong>, conocemos a fondo cada tecnología. Desde la electrónica de precisión europea hasta la robustez mecánica japonesa, tu moto está en las mejores manos.
+          </p>
+          <p style="font-size: 14px; color: var(--text);">
+            {{ desc }} Garantizamos repuestos certificados y procesos de taller estandarizados para cada marca.
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-5 card-brazo p-5 text-center shadow-lg" style="border-top: 4px solid var(--gold);">
+    <h2 style="font-family: var(--font-display); font-weight: 900; font-style: italic; transform: var(--racer-skew); color: var(--gold);">Servicio Multimarcas Real</h2>
+    <p class="text-muted mt-3">No solo reparamos, optimizamos. Cada marca tiene su secreto, y nosotros los conocemos todos.</p>
+  </div>
+</div>
+{% endblock %}

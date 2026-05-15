@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Inicio - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero-section">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-tag fade-up">Taller Especializado en Motos</div>
+      <h1 class="hero-title fade-up delay-1">
+        <span class="line-white">MULTIMARCAS</span>
+        <span class="line-red">BRAZO</span>
+      </h1>
+      <p class="hero-subtitle fade-up delay-2">
+        Pasión por las motos, excelencia en cada servicio. Cuidamos tu moto como si fuera nuestra. Servicio técnico, repuestos y mantenimiento de calidad.
+      </p>
+      <div class="hero-actions fade-up delay-3">
+        <a href="{{ url_for('citas.nueva') }}" class="btn-primary-brazo">
+          📅 Agendar Cita
+        </a>
+        <a href="{{ url_for('home.servicios') }}" class="btn-outline-brazo">
+          Ver Servicios
+        </a>
+      </div>
+
+      <div class="hero-stats fade-up delay-4">
+        <div class="stat-item">
+          <span class="stat-num">500<span>+</span></span>
+          <span class="stat-label">Motos Atendidas</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">10<span>+</span></span>
+          <span class="stat-label">Años de Experiencia</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">100<span>%</span></span>
+          <span class="stat-label">Clientes Satisfechos</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">20<span>+</span></span>
+          <span class="stat-label">Marcas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative moto SVG -->
+  <div style="position:absolute;right:0;bottom:0;width:55%;max-width:680px;opacity:0.85;pointer-events:none;">
+    <svg viewBox="0 0 600 380" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;filter:drop-shadow(0 20px 50px rgba(232,0,13,0.25));">
+      <!-- Stylized motorcycle silhouette -->
+      <ellipse cx="160" cy="300" rx="70" ry="70" stroke="#E8000D" stroke-width="12" fill="none"/>
+      <ellipse cx="440" cy="300" rx="70" ry="70" stroke="#E8000D" stroke-width="12" fill="none"/>
+      <ellipse cx="160" cy="300" rx="30" ry="30" fill="#E8000D" opacity="0.3"/>
+      <ellipse cx="440" cy="300" rx="30" ry="30" fill="#E8000D" opacity="0.3"/>
+      <!-- Body -->
+      <path d="M160 300 L200 180 L350 150 L430 180 L440 300" stroke="#333344" stroke-width="20" fill="none" stroke-linejoin="round"/>
+      <path d="M200 180 L280 160 L380 140 L430 180" fill="#1A1A2A" stroke="#E8000D" stroke-width="3"/>
+      <!-- Tank -->
+      <path d="M240 170 L340 150 L370 165 L350 185 L230 185 Z" fill="#E8000D" opacity="0.8"/>
+      <!-- Handlebar -->
+      <path d="M390 155 L420 130 M390 155 L420 160" stroke="#555566" stroke-width="8" stroke-linecap="round"/>
+      <!-- Seat -->
+      <path d="M230 185 L350 185 L340 200 L220 200 Z" fill="#222233"/>
+      <!-- Exhaust -->
+      <path d="M200 240 L100 260 L90 280" stroke="#555566" stroke-width="6" stroke-linecap="round"/>
+      <!-- Speed lines -->
+      <line x1="60" y1="200" x2="140" y2="200" stroke="#E8000D" stroke-width="2" opacity="0.3"/>
+      <line x1="40" y1="220" x2="130" y2="220" stroke="#E8000D" stroke-width="1.5" opacity="0.2"/>
+      <line x1="80" y1="240" x2="145" y2="240" stroke="#E8000D" stroke-width="1" opacity="0.15"/>
+    </svg>
+  </div>
+</section>
+
+<!-- SERVICES SECTION -->
+<section style="padding: 100px 0; background: var(--bg);">
+  <div class="container">
+    <div class="row align-items-center mb-5">
+      <div class="col-md-6">
+        <div class="tag-label animate-on-scroll">Nuestros Servicios</div>
+        <h2 class="section-title mt-3 animate-on-scroll">Soluciones para tu <span>moto</span></h2>
+      </div>
+      <div class="col-md-6 animate-on-scroll">
+        <p style="color:var(--text-muted);font-size:15px;line-height:1.7;">
+          Brindamos soluciones completas para el cuidado y mantenimiento de tu moto. Técnicos especializados, repuestos de calidad y atención personalizada.
+        </p>
+      </div>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card animate-on-scroll">
+        <div class="service-icon">🔧</div>
+        <div class="service-title">Mantenimiento Preventivo</div>
+        <p class="service-desc">Revisión general para mantener tu moto en óptimas condiciones. Cambio de aceite, filtros y más.</p>
+        <a href="{{ url_for('home.servicios') }}" style="color:var(--red);font-size:12px;font-weight:700;letter-spacing:1px;text-decoration:none;font-family:var(--font-ui);display:inline-flex;align-items:center;gap:6px;margin-top:16px;">Ver más →</a>
+      </div>
+      <div class="service-card animate-on-scroll">
+        <div class="service-icon">⚙️</div>
+        <div class="service-title">Mecánica Especializada</div>
+        <p class="service-desc">Diagnóstico y reparación de fallas mecánicas en todas las marcas. Expertos certificados.</p>
+        <a href="{{ url_for('home.servicios') }}" style="color:var(--red);font-size:12px;font-weight:700;letter-spacing:1px;text-decoration:none;font-family:var(--font-ui);display:inline-flex;align-items:center;gap:6px;margin-top:16px;">Ver más →</a>
+      </div>
+      <div class="service-card animate-on-scroll">
+        <div class="service-icon">⚡</div>
+        <div class="service-title">Electricidad</div>
+        <p class="service-desc">Solución a fallas eléctricas y electrónicas de tu moto. Sistema de inyección y más.</p>
+        <a href="{{ url_for('home.servicios') }}" style="color:var(--red);font-size:12px;font-weight:700;letter-spacing:1px;text-decoration:none;font-family:var(--font-ui);display:inline-flex;align-items:center;gap:6px;margin-top:16px;">Ver más →</a>
+      </div>
+      <div class="service-card animate-on-scroll">
+        <div class="service-icon">✨</div>
+        <div class="service-title">Lavado y Detallado</div>
+        <p class="service-desc">Dejamos tu moto como nueva, brillante y protegida. Detallado profesional exterior e interior.</p>
+        <a href="{{ url_for('home.servicios') }}" style="color:var(--red);font-size:12px;font-weight:700;letter-spacing:1px;text-decoration:none;font-family:var(--font-ui);display:inline-flex;align-items:center;gap:6px;margin-top:16px;">Ver más →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section style="padding: 80px 0; background: var(--bg-card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container text-center">
+    <div class="tag-label animate-on-scroll" style="justify-content:center;">¿Listo para comenzar?</div>
+    <h2 class="section-title mt-3 mb-4 animate-on-scroll">Agenda tu <span>cita hoy</span></h2>
+    <p style="color:var(--text-muted);font-size:15px;max-width:500px;margin:0 auto 36px;line-height:1.7;" class="animate-on-scroll">
+      Programa tu servicio en minutos. Nuestro equipo estará listo para atenderte con la calidad y profesionalismo que merece tu moto.
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap animate-on-scroll">
+      {% if current_user.is_authenticated %}
+      <a href="{{ url_for('citas.nueva') }}" class="btn-primary-brazo">📅 Agendar Cita</a>
+      {% else %}
+      <a href="{{ url_for('auth.register') }}" class="btn-primary-brazo">Crear Cuenta</a>
+      <a href="{{ url_for('auth.login') }}" class="btn-outline-brazo">Iniciar Sesión</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- MOTOS SECTION -->
+{% if motos %}
+<section style="padding: 100px 0;">
+  <div class="container">
+    <div class="d-flex align-items-end justify-content-between mb-5 flex-wrap gap-3">
+      <div>
+        <div class="tag-label animate-on-scroll">Vehículos</div>
+        <h2 class="section-title mt-3 animate-on-scroll">Motos que <span>atendemos</span></h2>
+      </div>
+      <a href="{{ url_for('motos.index') }}" class="btn-outline-brazo btn-sm-brazo animate-on-scroll">Ver todas →</a>
+    </div>
+    <div class="motos-grid">
+      {% for moto in motos %}
+      <div class="moto-card animate-on-scroll">
+        <div class="moto-img-placeholder">🏍️</div>
+        <div class="moto-info">
+          <div class="moto-brand">{{ moto.marca }}</div>
+          <div class="moto-model">{{ moto.modelo }}</div>
+          <div class="moto-plate">Placa: {{ moto.placa }} {% if moto.año %}· {{ moto.año }}{% endif %}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

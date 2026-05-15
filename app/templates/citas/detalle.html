@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle Cita{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:700px;">
+
+  <h2>🔍 Detalle de la Cita</h2>
+
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;">
+
+    <h5>{{ cita.moto.marca }} {{ cita.moto.modelo }}</h5>
+
+    <div class="mt-3">
+      <p><b>Placa:</b> {{ cita.moto.placa }}</p>
+      <p><b>Fecha:</b> {{ cita.fecha }}</p>
+      <p><b>Estado:</b> {{ cita.estado }}</p>
+      <p><b>Descripción:</b> {{ cita.descripcion or 'Sin descripción' }}</p>
+    </div>
+
+    <a href="{{ url_for('admin.citas') if current_user.is_admin() or current_user.is_empleado() else url_for('citas.index') }}" class="btn-back-striking mt-3"><i class="fas fa-chevron-left"></i> VOLVER</a>
+
+  </div>
+
+</div>
+{% endblock %}

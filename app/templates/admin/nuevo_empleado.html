@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Miembro - Equipo Técnico{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            
+            <div class="mb-4">
+                <a href="{{ url_for('admin.empleados') }}" class="btn-back-striking">⬅️ Volver al Equipo</a>
+            </div>
+
+            <div class="card-brazo p-5 shadow-lg" style="border-top: 4px solid var(--red); background: var(--bg-card); backdrop-filter: blur(15px);">
+                
+                <div class="text-center mb-5">
+                    <div style="font-size: 50px; color: var(--red); margin-bottom: 15px;">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h2 class="page-title" style="font-size: 32px; color: var(--text);">Alta de <span>Equipo Técnico</span></h2>
+                    <p class="text-muted">Registra un nuevo miembro para la gestión del taller</p>
+                </div>
+
+                <form action="{{ url_for('admin.nuevo_empleado') }}" method="POST">
+                    <div class="row g-4">
+                        <!-- Nombre Completo -->
+                        <div class="col-12">
+                            <label class="form-label-brazo">Nombre Completo *</label>
+                            <input type="text" name="nombre_completo" class="form-input-brazo" placeholder="Ej: Juan Pérez" required>
+                        </div>
+
+                        <!-- Username -->
+                        <div class="col-md-6">
+                            <label class="form-label-brazo">Usuario (Login) *</label>
+                            <input type="text" name="username" class="form-input-brazo" placeholder="Ej: juanp01" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label class="form-label-brazo">Correo Electrónico *</label>
+                            <input type="email" name="email" class="form-input-brazo" placeholder="ejemplo@brazo.com" required>
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div class="col-md-6">
+                            <label class="form-label-brazo">Teléfono de Contacto</label>
+                            <input type="text" name="telefono" class="form-input-brazo" placeholder="Ej: 310 000 0000">
+                        </div>
+
+                        <!-- Password -->
+                        <div class="col-md-6">
+                            <label class="form-label-brazo">Contraseña Temporal *</label>
+                            <input type="password" name="password" class="form-input-brazo" placeholder="********" required>
+                            <small class="text-muted" style="font-size: 10px;">El empleado podrá cambiarla luego.</small>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 d-grid">
+                        <button type="submit" class="btn-primary-brazo py-3" style="font-size: 18px; letter-spacing: 2px; justify-content: center;">
+                            <i class="fas fa-save me-2"></i> REGISTRAR EN EL SISTEMA
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="mt-4 text-center">
+                <div class="p-3" style="background: rgba(232, 0, 13, 0.05); border: 1px dashed var(--red); border-radius: 4px;">
+                    <p class="mb-0" style="font-size: 13px; color: var(--text);">
+                        <i class="fas fa-info-circle" style="color: var(--red);"></i> Al registrarse, el usuario tendrá acceso por defecto al <b>Panel de Control de Citas</b>.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

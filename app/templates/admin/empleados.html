@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Equipo Técnico - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- CABECERA -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+            <h2 class="page-title" style="margin:0;">Equipo <span>Técnico</span></h2>
+        </div>
+        <a href="{{ url_for('admin.nuevo_empleado') }}" class="btn-nav-action">+ AGREGAR MIEMBRO</a>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA -->
+    <div class="card-brazo p-3 mb-4" style="border-left: 4px solid var(--red);">
+        <form action="{{ url_for('admin.empleados') }}" method="GET" class="row g-2 align-items-center">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-muted">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" name="q" class="form-input-brazo" 
+                           placeholder="Buscar por nombre, usuario o email..." 
+                           value="{{ search_query or '' }}">
+                </div>
+            </div>
+            <div class="col-md-3 text-end">
+                <button type="submit" class="btn-nav-action w-100">FILTRAR EQUIPO</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- LISTADO DE EMPLEADOS -->
+    {% set admins = empleados | selectattr('rol', 'equalto', 'admin') | list %}
+    {% set tecnicos = empleados | selectattr('rol', 'equalto', 'empleado') | list %}
+
+    {% macro render_employee_card(emp) %}
+    {% set emp_color = 'var(--red)' if emp.rol == 'admin' else 'var(--accent)' %}
+    {% set emp_bg = 'var(--red)' if emp.rol == 'admin' else 'var(--accent)' %}
+    {% set emp_text_color = 'white' if emp.rol == 'admin' else 'black' %}
+    {% set emp_status_color = 'var(--badge-confirmed)' if emp.activo else 'var(--badge-cancelled)' %}
+    {% set emp_card_style = 'style="border-top: 3px solid ' ~ emp_color ~ '; cursor: pointer; transition: 0.3s;"' %}
+    {% set emp_icon_style = 'style="width: 50px; height: 50px; background: ' ~ emp_bg ~ '; color: ' ~ emp_text_color ~ '; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; transform: skewX(-10deg);"' %}
+    <div class="col-md-6 col-lg-4">
+        <!-- TARJETA DE EMPLEADO -->
+        <div class="card-brazo p-4 h-100 position-relative overflow-hidden" 
+             {{ emp_card_style | safe }}
+             data-bs-toggle="modal" data-bs-target="#modalEmp{{ emp.id }}">
+            
+            <div class="d-flex align-items-start gap-3 mb-4">
+                <div {{ emp_icon_style | safe }}>
+                    {{ emp.nombre_completo[:1].upper() }}
+                </div>
+                <div>
+                    <h4 style="font-family: var(--font-display); font-weight: 900; margin: 0; font-style: italic; transform: var(--racer-skew); color: var(--text);">
+                        {{ emp.nombre_completo }}
+                    </h4>
+                    <code style="color: var(--red);">@{{ emp.username }}</code>
+                </div>
+            </div>
+
+            <div class="mb-3" style="font-size: 13px; color: var(--text-muted);">
+                <div class="mb-2"><i class="fas fa-id-badge" style="width: 20px;"></i> ROL: <b style="color: var(--text);">{{ emp.rol | upper }}</b></div>
+                {% set emp_status_icon = 'style="width: 20px; color: ' ~ emp_status_color ~ ';"' %}
+                <div><i class="fas fa-circle" {{ emp_status_icon | safe }}></i> ESTADO: <b style="color: var(--text);">{{ 'ACTIVO' if emp.activo else 'INACTIVO' }}</b></div>
+                <div class="mt-2 d-flex align-items-center justify-content-between">
+                    <span><i class="fas fa-tools" style="width: 20px;"></i> TRABAJOS: <b style="color: var(--red);">{{ emp.facturas_asignadas|length }}</b></span>
+                    {% set ratings = emp.facturas_asignadas | selectattr('calificacion', 'defined') | selectattr('calificacion', 'ne', none) | map(attribute='calificacion') | list %}
+                    {% if ratings %}
+                        {% set avg = ratings | sum / ratings | length %}
+                        <span style="color: #ffcc00; font-weight: 800;"><i class="fas fa-star me-1"></i> {{ avg | round(1) }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-auto pt-3 text-center" style="border-top: 1px solid rgba(255,255,255,0.05);">
+                <small class="text-muted" style="font-size: 10px; letter-spacing: 1px;">HAZ CLIC PARA VER DETALLES E HISTORIAL</small>
+            </div>
+        </div>
+    </div>
+    {% endmacro %}
+
+    <!-- SECCIÓN ADMINISTRADORES -->
+    {% if admins %}
+    <div class="mb-5">
+        <h3 class="section-title mb-4" style="font-size: 20px;">🛡️ PANEL DE <span>CONTROL (ADMINS)</span></h3>
+        <div class="row g-4">
+            {% for emp in admins %}
+                {{ render_employee_card(emp) }}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SECCIÓN TÉCNICOS -->
+    {% if tecnicos %}
+    <div class="mb-5">
+        <h3 class="section-title mb-4" style="font-size: 20px;">🔧 EQUIPO <span>TÉCNICO EN PISTA</span></h3>
+        <div class="row g-4">
+            {% for emp in tecnicos %}
+                {{ render_employee_card(emp) }}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+
+
+    <!-- MODALES (Se renderizan al final para evitar problemas de nesting) -->
+    {% for emp in empleados %}
+        <!-- MODAL DETALLE DE EMPLEADO -->
+        <div class="modal fade" id="modalEmp{{ emp.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text);">
+                    <div class="modal-header" style="border-bottom: 1px solid var(--border); padding: 25px;">
+                        <h4 class="modal-title" style="font-family: var(--font-display); font-weight: 900; color: var(--red); font-style: italic; transform: var(--racer-skew);">
+                            PERFIL {{ 'ADMINISTRATIVO' if emp.rol == 'admin' else 'TÉCNICO' }}
+                        </h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="padding: 30px;">
+                        <div class="row">
+                            <div class="col-md-5 border-end border-secondary border-opacity-25">
+                                <div class="text-center mb-4">
+                                {% set modal_emp_bg = 'var(--red)' if emp.rol == 'admin' else 'var(--accent)' %}
+                                {% set modal_emp_color = 'white' if emp.rol == 'admin' else 'black' %}
+                                {% set modal_emp_style = 'style="width: 100px; height: 100px; background: ' ~ modal_emp_bg ~ '; color: ' ~ modal_emp_color ~ '; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 40px; transform: skewX(-10deg); margin: 0 auto 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);"' %}
+                                <div {{ modal_emp_style | safe }}>
+                                        {{ emp.nombre_completo[:1].upper() }}
+                                    </div>
+                                    <h3 style="font-family: var(--font-display); font-weight: 900; margin: 0; color: var(--text);">{{ emp.nombre_completo }}</h3>
+                                    <code style="color: var(--red); font-size: 16px;">@{{ emp.username }}</code>
+                                    
+                                    {% set ratings = emp.facturas_asignadas | selectattr('calificacion', 'defined') | selectattr('calificacion', 'ne', none) | map(attribute='calificacion') | list %}
+                                    {% if ratings %}
+                                        {% set avg = ratings | sum / ratings | length %}
+                                        <div class="mt-2" style="color: #ffcc00; font-size: 18px; font-weight: 900;">
+                                            {% for i in range(5) %}
+                                                <i class="fas fa-star {{ 'text-warning' if i < avg|round(0, 'floor') else 'text-muted opacity-25' }}"></i>
+                                            {% endfor %}
+                                            <span class="ms-2">({{ avg | round(1) }})</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="card-brazo p-3 mb-4" style="background: rgba(255,255,255,0.02);">
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">EMAIL</small>
+                                        <span style="font-weight: 600;">{{ emp.email }}</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">TELÉFONO</small>
+                                        <span style="font-weight: 600;">{{ emp.telefono or 'No registrado' }}</span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">ESTADO</small>
+                                        <span class="{{ 'text-success' if emp.activo else 'text-danger' }}" style="font-weight: 800;">
+                                            {{ 'ACTIVO' if emp.activo else 'INACTIVO' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- GESTIÓN DE ROL -->
+                                <form action="{{ url_for('admin.cambiar_rol', uid=emp.id) }}" method="POST" class="p-3 border border-secondary border-opacity-25 rounded bg-dark bg-opacity-25">
+                                    <label class="form-label-brazo mb-2">CAMBIAR ROL</label>
+                                    <div class="input-group input-group-sm">
+                                        <select name="rol" class="form-input-brazo">
+                                            <option value="empleado" {{ 'selected' if emp.rol == 'empleado' }}>Técnico</option>
+                                            <option value="admin" {{ 'selected' if emp.rol == 'admin' }}>Admin</option>
+                                            <option value="cliente" {{ 'selected' if emp.rol == 'cliente' }}>Cliente</option>
+                                        </select>
+                                        <button class="btn-primary-brazo" type="submit">OK</button>
+                                    </div>
+                                </form>
+
+                                <div class="mt-4">
+                                    <a href="{{ url_for('admin.toggle_usuario', uid=emp.id) }}" class="btn-outline-brazo btn-sm-brazo w-100 mb-2" style="justify-content: center;">
+                                        {{ 'DESACTIVAR ACCESO' if emp.activo else 'ACTIVAR ACCESO' }}
+                                    </a>
+                                    {% if emp.username != 'admin' %}
+                                    <form action="{{ url_for('admin.eliminar_usuario', uid=emp.id) }}" method="POST" onsubmit="return confirm('¿ELIMINAR MIEMBRO?');">
+                                        <button type="submit" class="btn-primary-brazo btn-sm-brazo w-100" style="justify-content: center; background: #e74c3c;">ELIMINAR MIEMBRO</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-7 ps-md-4 mt-4 mt-md-0">
+                                <h5 style="font-family: var(--font-display); font-weight: 800; font-style: italic; color: var(--accent); margin-bottom: 20px;">
+                                    <i class="fas fa-history me-2"></i> HISTORIAL DE TRABAJOS
+                                </h5>
+                                
+                                <div style="max-height: 450px; overflow-y: auto; padding-right: 10px;" class="custom-scrollbar">
+                                    {% if emp.facturas_asignadas %}
+                                        {% for fac in emp.facturas_asignadas | sort(attribute='fecha', reverse=True) %}
+                                        <div class="card-brazo p-3 mb-3" style="background: rgba(255,255,255,0.03); border-left: 3px solid var(--red);">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <div style="font-weight: 800; color: var(--text);">{{ fac.numero }}</div>
+                                                    <div class="text-muted small">{{ fac.fecha.strftime('%d/%m/%Y %H:%M') }}</div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <div style="color: var(--red); font-weight: 900;">$ {{ "{:,.0f}".format(fac.total) }}</div>
+                                                    {% if fac.calificacion %}
+                                                        <div style="color: #ffcc00; font-size: 10px;">
+                                                            {% for i in range(fac.calificacion) %}<i class="fas fa-star"></i>{% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% if fac.comentario_cliente %}
+                                                <div class="mt-2 p-2 rounded bg-dark bg-opacity-50 small text-muted border-start border-warning border-3">
+                                                    <i class="fas fa-quote-left me-1 opacity-25"></i> {{ fac.comentario_cliente }}
+                                                </div>
+                                            {% endif %}
+                                            <div class="mt-2 pt-2 border-top border-secondary border-opacity-10 d-flex justify-content-between align-items-center">
+                                                <div class="small">
+                                                    <i class="fas fa-user text-muted me-1"></i> {{ fac.user.nombre_completo }}
+                                                    <span class="mx-1 opacity-25">|</span>
+                                                    <i class="fas fa-motorcycle text-muted me-1"></i> {{ fac.moto.placa if fac.moto else '—' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-center py-5 opacity-50">
+                                            <i class="fas fa-folder-open fa-3x mb-3"></i>
+                                            <p>No hay trabajos registrados para este miembro.</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

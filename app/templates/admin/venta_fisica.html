@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Venta en Taller - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 800px;">
+    <a href="{{ url_for('admin.pedidos') }}" class="btn-back-striking">⬅️ Volver</a>
+
+    <div class="page-header text-center my-4">
+        <h1 class="page-title">Venta en <span>Taller</span></h1>
+        <p class="page-subtitle">Registra la venta directa de repuestos desde el punto físico</p>
+    </div>
+
+    <form method="POST" class="card-brazo p-5 shadow-lg" style="border-radius: 20px;">
+        <div class="row g-4">
+
+            <!-- Cliente -->
+            <div class="col-12">
+                <h5 class="mb-3" style="color: var(--red); font-weight: 800; letter-spacing: 1px;">1. DATOS DEL CLIENTE</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label-brazo">Cliente (opcional)</label>
+                        <select name="user_id" class="form-input-brazo" id="selectCliente" onchange="toggleClienteManual()">
+                            <option value="">-- Cliente sin cuenta (walk-in) --</option>
+                            {% for u in clientes %}
+                            <option value="{{ u.id }}">{{ u.nombre_completo }} ({{ u.username }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="campoNombreManual">
+                        <label class="form-label-brazo">Nombre del cliente (walk-in)</label>
+                        <input type="text" name="nombre_cliente_fisico" class="form-input-brazo" placeholder="Ej: Juan García">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repuestos -->
+            <div class="col-12">
+                <h5 class="mb-3" style="color: var(--red); font-weight: 800; letter-spacing: 1px;">2. REPUESTOS VENDIDOS</h5>
+                <div id="items-container">
+                    <div class="row g-2 mb-3 item-row">
+                        <div class="col-md-6">
+                            <select name="repuesto_id[]" class="form-input-brazo" required>
+                                <option value="">-- Selecciona un repuesto --</option>
+                                {% for rep in repuestos %}
+                                <option value="{{ rep.id }}" data-precio="{{ rep.precio }}">{{ rep.nombre }} - ${{ "{:,.0f}".format(rep.precio) }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" name="cantidad[]" class="form-input-brazo" placeholder="Cantidad" min="1" value="1" required>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="eliminarFila(this)">✕ Quitar</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-light mt-2" onclick="agregarFila()">+ Agregar otro repuesto</button>
+            </div>
+
+            <!-- Método de pago -->
+            <div class="col-12">
+                <h5 class="mb-3" style="color: var(--red); font-weight: 800; letter-spacing: 1px;">3. MÉTODO DE PAGO</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <select name="metodo_pago" class="form-input-brazo" required>
+                            <option value="efectivo">💵 Efectivo</option>
+                            <option value="transferencia">📲 Transferencia</option>
+                            <option value="tarjeta">💳 Tarjeta</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 mt-4">
+                <div class="alert alert-info bg-dark border-info text-info" style="border-radius: 15px; font-size: 0.85rem;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Esta venta quedará registrada en el panel de <strong>Pedidos</strong> con el origen marcado como <strong>FÍSICO</strong>, y el stock se descontará automáticamente.
+                </div>
+                <button type="submit" class="btn-primary-brazo w-100 py-3 mt-2" style="font-size: 1.1rem; border-radius: 50px;">
+                    🧾 Registrar Venta
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleClienteManual() {
+    const sel = document.getElementById('selectCliente');
+    const campo = document.getElementById('campoNombreManual');
+    campo.style.display = sel.value ? 'none' : 'block';
+}
+
+// Plantilla para nuevas filas
+const repuestoOptions = `{{ repuestos | map(attribute='nombre') | list | tojson }}`;
+const repuestoData = [
+    {% for rep in repuestos %}
+    { id: {{ rep.id }}, nombre: "{{ rep.nombre }}", precio: {{ rep.precio }} },
+    {% endfor %}
+];
+
+function agregarFila() {
+    const container = document.getElementById('items-container');
+    const row = document.createElement('div');
+    row.className = 'row g-2 mb-3 item-row';
+    row.innerHTML = `
+        <div class="col-md-6">
+            <select name="repuesto_id[]" class="form-input-brazo" required>
+                <option value="">-- Selecciona un repuesto --</option>
+                ${repuestoData.map(r => `<option value="${r.id}">${r.nombre} - $${r.precio.toLocaleString()}</option>`).join('')}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="number" name="cantidad[]" class="form-input-brazo" placeholder="Cantidad" min="1" value="1" required>
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+            <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="eliminarFila(this)">✕ Quitar</button>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function eliminarFila(btn) {
+    const rows = document.querySelectorAll('.item-row');
+    if (rows.length > 1) {
+        btn.closest('.item-row').remove();
+    }
+}
+</script>
+{% endblock %}

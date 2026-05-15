@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Crear Cuenta - Multimarcas Brazo{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-bg-effect"></div>
+
+  <div class="auth-card fade-up" style="max-width:500px;">
+    <div class="auth-logo" style="text-align: center; margin-bottom: 20px;">
+      <img src="{{ url_for('static', filename='img/logo_brazo.png') }}" alt="Logo Brazo" style="width: 100%; max-width: 280px; height: auto;">
+    </div>
+
+    <h2 class="auth-title">Crear Cuenta</h2>
+    <p style="text-align:center;font-size:13px;color:var(--text-muted);margin-bottom:28px;">Regístrate para gestionar tus motos y citas</p>
+
+    <form method="POST">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label-brazo">Nombre Completo</label>
+          <input type="text" name="nombre_completo" class="form-input-brazo" placeholder="Ingresa tu nombre" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label-brazo">Usuario</label>
+          <input type="text" name="username" class="form-input-brazo" placeholder="Elige un usuario" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label-brazo">Teléfono</label>
+          <input type="tel" name="telefono" class="form-input-brazo" placeholder="300 000 0000">
+        </div>
+        <div class="col-12">
+          <label class="form-label-brazo">Correo Electrónico</label>
+          <input type="email" name="email" class="form-input-brazo" placeholder="correo@ejemplo.com" required>
+        </div>
+        <div class="col-md-6" style="position:relative;">
+          <label class="form-label-brazo">Contraseña</label>
+          <input type="password" name="password" id="pwd1" class="form-input-brazo" placeholder="Crea una contraseña" required minlength="6">
+          <button type="button" onclick="togglePwd('pwd1')" style="position:absolute;right:14px;top:38px;background:none;border:none;color:var(--text-muted);cursor:pointer;">👁</button>
+        </div>
+        <div class="col-md-6" style="position:relative;">
+          <label class="form-label-brazo">Confirmar Contraseña</label>
+          <input type="password" name="confirm_password" id="pwd2" class="form-input-brazo" placeholder="Confirma tu contraseña" required>
+          <button type="button" onclick="togglePwd('pwd2')" style="position:absolute;right:14px;top:38px;background:none;border:none;color:var(--text-muted);cursor:pointer;">👁</button>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn-primary-brazo" style="width:100%;justify-content:center;">
+            REGISTRARME
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div class="auth-divider"><span>¿Ya tienes cuenta?</span></div>
+    <a href="{{ url_for('auth.login') }}" class="btn-outline-brazo" style="width:100%;justify-content:center;">
+      Iniciar sesión aquí
+    </a>
+
+    <div style="text-align:center;margin-top:24px;">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" style="margin:0 auto;" title="Cambiar tema">🌙</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePwd(id) {
+  const f = document.getElementById(id);
+  f.type = f.type === 'password' ? 'text' : 'password';
+}
+</script>
+{% endblock %}

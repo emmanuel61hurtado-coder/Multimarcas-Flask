@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: multimarcas_brazo_app
+    ports:
+      - "81:81"
+    volumes:
+      # Montar la carpeta 'instance' para que la base de datos SQLite (taller.db) sea persistente
+      - ./instance:/app/instance
+    restart: unless-stopped

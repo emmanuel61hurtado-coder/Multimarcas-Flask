@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Mi Perfil - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; padding-bottom: 80px;">
+
+  <div class="mb-4">
+    {% if current_user.is_empleado() %}
+      <a href="{{ url_for('admin.dashboard') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+    {% else %}
+      <a href="{{ url_for('cliente.dashboard') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+    {% endif %}
+  </div>
+
+  <div class="page-header">
+    <h1 class="page-title">Mi <span>Perfil</span></h1>
+    <p class="page-subtitle">Gestiona tu información personal</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      <div class="profile-sidebar">
+        <div style="padding:32px 20px;text-align:center;border-bottom:1px solid var(--border);">
+          <div class="profile-avatar">{{ current_user.nombre_completo[0].upper() }}</div>
+          <div style="font-family:var(--font-ui);font-size:16px;font-weight:700;">{{ current_user.nombre_completo }}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">@{{ current_user.username }}</div>
+          <span class="badge-brazo badge-{{ current_user.rol }}" style="margin-top:12px;display:inline-flex;">{{ current_user.rol }}</span>
+        </div>
+        <div style="padding:12px 0;">
+          <a href="{{ url_for('auth.perfil') }}" class="sidebar-nav-link active">
+            👤 Información Personal
+          </a>
+          <a href="#" onclick="document.getElementById('cambioPass').scrollIntoView({behavior:'smooth'});return false;" class="sidebar-nav-link">
+            🔒 Cambiar Contraseña
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main form -->
+    <div class="col-md-9">
+      <form method="POST" class="form-brazo">
+        <h3 style="font-family:var(--font-display);font-size:22px;font-weight:800;margin-bottom:28px;">
+          Información Personal
+        </h3>
+
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label-brazo">Nombre Completo</label>
+            <input type="text" name="nombre_completo" class="form-input-brazo"
+                   value="{{ current_user.nombre_completo }}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-brazo">Usuario</label>
+            <input type="text" class="form-input-brazo" value="{{ current_user.username }}" disabled
+                   style="opacity:0.5;cursor:not-allowed;">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-brazo">Teléfono</label>
+            <input type="tel" name="telefono" class="form-input-brazo"
+                   value="{{ current_user.telefono or '' }}" placeholder="300 000 0000">
+          </div>
+          <div class="col-12">
+            <label class="form-label-brazo">Correo Electrónico</label>
+            <input type="email" name="email" class="form-input-brazo"
+                   value="{{ current_user.email }}" required>
+          </div>
+        </div>
+
+        <div id="cambioPass" style="margin-top:36px;padding-top:36px;border-top:1px solid var(--border);">
+          <h4 style="font-family:var(--font-ui);font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:20px;">
+            Cambiar Contraseña
+          </h4>
+          <div class="col-md-8">
+            <label class="form-label-brazo">Nueva Contraseña (dejar vacío para no cambiar)</label>
+            <input type="password" name="new_password" class="form-input-brazo"
+                   placeholder="Mínimo 6 caracteres" minlength="6">
+          </div>
+        </div>
+
+        <div style="margin-top:28px; display:flex; justify-content:space-between; align-items:flex-end;">
+          <button type="submit" class="btn-primary-brazo">
+            💾 Guardar Cambios
+          </button>
+        </div>
+      </form>
+
+      <!-- ZONA DE PELIGRO: ELIMINAR CUENTA -->
+      <div style="margin-top:50px; padding-top:30px; border-top:2px dashed #e74c3c;">
+        <h4 style="font-family:var(--font-ui);font-size:18px;font-weight:700;color:#e74c3c;margin-bottom:10px;">
+          ⚠️ Zona de Peligro
+        </h4>
+        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">
+          Al eliminar tu cuenta, perderás acceso al sistema. Tus recibos y facturas se mantendrán por motivos contables, pero no podrás volver a iniciar sesión con este usuario.
+        </p>
+        <form action="{{ url_for('auth.eliminar_cuenta') }}" method="POST" onsubmit="return confirm('¿Estás ABSOLUTAMENTE SEGURO de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.');">
+          <button type="submit" style="background:transparent; border:1px solid #e74c3c; color:#e74c3c; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer; transition:0.3s;" onmouseover="this.style.background='#e74c3c'; this.style.color='white';" onmouseout="this.style.background='transparent'; this.style.color='#e74c3c';">
+            🗑️ Eliminar mi cuenta permanentemente
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

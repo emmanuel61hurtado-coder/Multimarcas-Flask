@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Agendar Cita - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 750px;">
+
+  <div class="page-header text-center">
+    <div class="mb-3">
+      <a href="{{ url_for('admin.citas') if current_user.is_admin() or current_user.is_empleado() else url_for('citas.index') }}" class="btn-back-striking">⬅️ Volver</a>
+    </div>
+    <h1 class="page-title">Agendar <span>Cita</span></h1>
+    <p class="page-subtitle">Reserva tu espacio en nuestro taller especializado</p>
+  </div>
+
+  {% if not motos %}
+  <div class="card-brazo text-center p-5">
+    <div style="font-size: 50px; margin-bottom: 20px;">⚠️</div>
+    <h3 style="font-family: var(--font-display); font-weight: 800;">¡Alto ahí!</h3>
+    <p class="text-muted">Necesitamos saber qué moto traerás al taller para poder agendar tu espacio.</p>
+    <a href="{{ url_for('cliente.motos') }}" class="btn-primary-brazo mt-3">＋ Registrar mi primera moto</a>
+  </div>
+  {% else %}
+  
+  <form method="POST" class="form-brazo shadow-lg">
+    
+    <!-- SECCIÓN MOTO -->
+    <div class="mb-5">
+      <h5 style="font-family: var(--font-ui); color: var(--red); text-transform: uppercase; letter-spacing: 2px; font-size: 14px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <span style="background: var(--red); width: 10px; height: 10px; border-radius: 50%; display: inline-block;"></span>
+        1. Selecciona tu Vehículo
+      </h5>
+      
+      <div class="col-12">
+        <label class="form-label-brazo">Moto Registrada</label>
+        <select name="moto_id" class="form-input-brazo" required style="height: 55px; font-size: 16px;">
+          <option value="" disabled selected>Haz clic para elegir una de tus motos...</option>
+          {% for moto in motos %}
+            <option value="{{ moto.id }}">{{ moto.marca }} {{ moto.modelo }} ({{ moto.placa }})</option>
+          {% endfor %}
+        </select>
+        <div class="mt-2 text-end">
+          <a href="{{ url_for('cliente.motos') }}" style="font-size: 12px; color: var(--text-muted); text-decoration: none;">¿No aparece tu moto? Regístrala aquí ➔</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN CITA -->
+    <div class="mb-5">
+      <h5 style="font-family: var(--font-ui); color: var(--red); text-transform: uppercase; letter-spacing: 2px; font-size: 14px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <span style="background: var(--red); width: 10px; height: 10px; border-radius: 50%; display: inline-block;"></span>
+        2. Detalles del Servicio
+      </h5>
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <label class="form-label-brazo">Fecha Deseada</label>
+          <input type="date" name="fecha" id="fechaCita" class="form-input-brazo" required min="{{ now().strftime('%Y-%m-%d') if now else '' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label-brazo">Hora</label>
+          <input type="time" name="hora" id="horaCita" class="form-input-brazo" required min="08:00" max="17:00">
+          <small class="text-muted" style="font-size: 11px;">Lunes a Viernes: 8:00 AM - 5:00 PM | Sábados: 8:00 AM - 12:00 PM</small>
+        </div>
+        <div class="col-12">
+          <label class="form-label-brazo">Tipo de Servicio</label>
+          <select name="tipo_servicio" class="form-input-brazo" required>
+            <option value="" disabled selected>¿Qué servicio necesitas?</option>
+            <option value="Mantenimiento Preventivo">🛠️ Mantenimiento Preventivo</option>
+            <option value="Cambio de Aceite">🛢️ Cambio de Aceite</option>
+            <option value="Sincronización">⚙️ Sincronización</option>
+            <option value="Reparación de Motor">🔥 Reparación de Motor</option>
+            <option value="Frenos">🛑 Sistema de Frenos</option>
+            <option value="Electricidad">⚡ Sistema Eléctrico</option>
+            <option value="Lavado y Detallado">✨ Lavado Premium</option>
+            <option value="Otro">❓ Otro servicio</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label-brazo">Descripción / Síntomas</label>
+          <textarea name="descripcion" class="form-input-brazo" rows="4" placeholder="Cuéntanos un poco más sobre lo que necesita tu moto o los fallos que presenta..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="pt-4 border-top" style="border-color: var(--border) !important;">
+      <button type="submit" class="btn-primary-brazo" style="width: 100%; padding: 18px; font-size: 15px; border-radius: 50px;">
+        🏁 Confirmar Agendamiento
+      </button>
+    </div>
+
+  </form>
+  {% endif %}
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaInput = document.getElementById('fechaCita');
+    const horaInput = document.getElementById('horaCita');
+
+    if(fechaInput && horaInput) {
+        fechaInput.addEventListener('change', function() {
+            // El valor de input type="date" es YYYY-MM-DD
+            if(!this.value) return;
+            
+            // Usamos split para evitar problemas de zona horaria de JS
+            const parts = this.value.split('-');
+            const dateVal = new Date(parts[0], parts[1] - 1, parts[2]);
+            
+            const day = dateVal.getDay(); // 0 es Domingo
+            if (day === 0) {
+                alert('Lo sentimos, no abrimos los domingos. Por favor selecciona otro día.');
+                this.value = ''; 
+                horaInput.max = '17:00';
+            } else if (day === 6) { // Sábado
+                horaInput.max = '12:00';
+                if (horaInput.value > '12:00') horaInput.value = '12:00';
+            } else { // Lunes - Viernes
+                horaInput.max = '17:00';
+            }
+        });
+        
+        horaInput.addEventListener('change', function() {
+            if(!fechaInput.value || !this.value) return;
+            
+            const parts = fechaInput.value.split('-');
+            const dateVal = new Date(parts[0], parts[1] - 1, parts[2]);
+            const day = dateVal.getDay();
+            
+            if (this.value < '08:00') {
+                alert('Nuestro horario de atención comienza a las 8:00 AM');
+                this.value = '08:00';
+            }
+            if (day === 6 && this.value > '12:00') {
+                alert('Los Sábados solo atendemos hasta las 12:00 PM');
+                this.value = '12:00';
+            } else if (this.value > '17:00') {
+                alert('Cerramos a las 5:00 PM. Por favor elige una hora más temprana.');
+                this.value = '17:00';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

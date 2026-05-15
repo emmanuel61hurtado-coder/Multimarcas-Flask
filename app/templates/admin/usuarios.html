@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Control de Usuarios - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- CABECERA -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+            <h2 class="page-title" style="margin:0;">Control de <span>Clientes</span></h2>
+        </div>
+        <div class="stats-badge">
+            <span class="badge bg-dark border border-secondary p-2" style="font-family: var(--font-ui); letter-spacing: 1px;">
+                TOTAL: {{ users|length }} REGISTRADOS
+            </span>
+        </div>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA -->
+    <div class="card-brazo p-3 mb-4" style="border-left: 4px solid var(--red);">
+        <form action="{{ url_for('admin.usuarios') }}" method="GET" class="row g-2 align-items-center">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-muted">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" name="q" class="form-input-brazo" 
+                           placeholder="Buscar por nombre, usuario o email..." 
+                           value="{{ search_query or '' }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn-nav-action w-100">BUSCAR</button>
+                    {% if search_query %}
+                    <a href="{{ url_for('admin.usuarios') }}" class="btn btn-outline-secondary" style="transform: var(--racer-skew);">LIMPIAR</a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- LISTADO DE USUARIOS EN TARJETAS -->
+    <div class="row g-4">
+        {% for user in users %}
+        <div class="col-md-6 col-lg-4">
+            {% set user_color = 'var(--red)' if user.rol == 'admin' else 'var(--accent)' %}
+            {% set user_bg = 'var(--red)' if user.rol == 'admin' else 'var(--accent)' %}
+            {% set user_text_color = 'white' if user.rol == 'admin' else 'black' %}
+            {% set status_color = 'var(--badge-confirmed)' if user.activo else 'var(--badge-cancelled)' %}
+            {% set user_card_style = 'style="border-top: 3px solid ' ~ user_color ~ ';"' %}
+            {% set user_icon_style = 'style="width: 50px; height: 50px; background: ' ~ user_bg ~ '; color: ' ~ user_text_color ~ '; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; transform: skewX(-10deg);"' %}
+            <div class="card-brazo p-4 h-100 position-relative overflow-hidden" {{ user_card_style | safe }}>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div {{ user_icon_style | safe }}>
+                        {{ user.nombre_completo[:1].upper() }}
+                    </div>
+                    <div class="overflow-hidden">
+                        <h4 style="font-family: var(--font-display); font-weight: 900; margin: 0; font-style: italic; transform: var(--racer-skew); color: var(--text); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                            {{ user.nombre_completo }}
+                        </h4>
+                        <code style="color: var(--red);">@{{ user.username }}</code>
+                    </div>
+                </div>
+
+                <div class="mb-4" style="font-size: 13px; color: var(--text-muted);">
+                    <div class="mb-2"><i class="fas fa-envelope" style="width: 20px; color: var(--red);"></i> {{ user.email }}</div>
+                    <div class="mb-2"><i class="fas fa-phone" style="width: 20px; color: var(--red);"></i> {{ user.telefono or 'Sin teléfono' }}</div>
+                    <div class="mb-2">
+                        <i class="fas fa-shield-alt" style="width: 20px; color: var(--red);"></i> ROL: 
+                        <span class="badge {{ 'bg-danger' if user.rol == 'admin' else 'bg-secondary' }}" style="font-size: 9px; transform: skewX(-10deg);">{{ user.rol | upper }}</span>
+                    </div>
+                    <div>
+                        {% set status_icon_style = 'style="width: 20px; color: ' ~ status_color ~ ';"' %}
+                        <i class="fas fa-circle" {{ status_icon_style | safe }}></i> 
+                        ESTADO: <b style="color: var(--text);">{{ 'ACTIVO' if user.activo else 'INACTIVO' }}</b>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-3 d-flex gap-2 border-top border-secondary border-opacity-10">
+                    <a href="{{ url_for('admin.toggle_usuario', uid=user.id) }}" 
+                       class="btn btn-sm {{ 'btn-outline-warning' if user.activo else 'btn-outline-success' }} flex-grow-1"
+                       style="font-weight: 800; font-size: 11px;">
+                        {{ 'DESACTIVAR' if user.activo else 'ACTIVAR' }}
+                    </a>
+                    <form action="{{ url_for('admin.eliminar_usuario', uid=user.id) }}" method="POST" style="margin:0;" 
+                          onsubmit="return confirm('¿Eliminar a {{ user.username }}?');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <div style="font-size: 60px; opacity: 0.1;">🔍</div>
+            <h5 class="text-muted">No se encontraron clientes que coincidan.</h5>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

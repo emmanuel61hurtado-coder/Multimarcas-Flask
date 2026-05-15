@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Recuperar Contraseña - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 150px);">
+    <div class="card-brazo" style="max-width: 450px; width: 100%; border-top: 4px solid var(--red);">
+        <div class="card-header text-center pt-4 pb-0" style="background: transparent; border-bottom: none;">
+            <div class="mb-3">
+                <i class="fas fa-lock" style="font-size: 40px; color: var(--red); transform: skewX(-10deg);"></i>
+            </div>
+            <h3 style="font-family: var(--font-display); font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: 1px; color: var(--text);">
+                Recuperar <span style="color: var(--red);">Clave</span>
+            </h3>
+            <p class="text-muted small px-3">
+                Ingresa tu correo electrónico registrado y te enviaremos un enlace para restablecer tu contraseña.
+            </p>
+        </div>
+        <div class="card-body p-4">
+            <form action="{{ url_for('auth.recuperar_password') }}" method="POST">
+                <div class="mb-4">
+                    <label class="form-label-brazo"><i class="fas fa-envelope me-2 text-muted"></i>CORREO ELECTRÓNICO</label>
+                    <input type="email" name="email" class="form-input-brazo" placeholder="ejemplo@correo.com" required autofocus>
+                </div>
+                
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn-primary-brazo py-3" style="font-size: 14px; letter-spacing: 2px; justify-content: center;">
+                        <i class="fas fa-paper-plane me-2"></i> ENVIAR ENLACE
+                    </button>
+                    
+                    <a href="{{ url_for('auth.login') }}" class="btn-outline-brazo text-center py-2" style="font-size: 12px; border-color: rgba(255,255,255,0.1);">
+                        <i class="fas fa-arrow-left me-2"></i> VOLVER AL LOGIN
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

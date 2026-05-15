@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Iniciar Sesión - Multimarcas Brazo{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-bg-effect"></div>
+
+  <div class="auth-card fade-up">
+    <div class="auth-logo" style="text-align: center; margin-bottom: 20px;">
+      <img src="{{ url_for('static', filename='img/logo_brazo.png') }}" alt="Logo Brazo" style="width: 100%; max-width: 320px; height: auto;">
+    </div>
+
+    <h2 class="auth-title">Iniciar Sesión</h2>
+    <p style="text-align:center;font-size:13px;color:var(--text-muted);margin-bottom:28px;">Bienvenido de vuelta</p>
+
+    <form method="POST">
+      <div style="margin-bottom:20px;">
+        <label class="form-label-brazo">Usuario</label>
+        <input type="text" name="username" class="form-input-brazo" placeholder="Ingresa tu usuario" required autocomplete="username">
+      </div>
+
+      <div style="margin-bottom:20px;position:relative;">
+        <label class="form-label-brazo">Contraseña</label>
+        <input type="password" name="password" id="passwordField" class="form-input-brazo" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
+        <button type="button" onclick="togglePwd()" style="position:absolute;right:14px;top:38px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;">👁</button>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-28" style="margin-bottom:24px;">
+        <label class="checkbox-brazo">
+          <input type="checkbox" name="remember">
+          <span>Recordarme</span>
+        </label>
+        <a href="{{ url_for('auth.recuperar_password') }}" style="color:var(--red);font-size:12px;font-weight:600;text-decoration:none;">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn-primary-brazo" style="width:100%;justify-content:center;">
+        INGRESAR
+      </button>
+    </form>
+
+    <div class="auth-divider"><span>¿No tienes cuenta?</span></div>
+    <a href="{{ url_for('auth.register') }}" class="btn-outline-brazo" style="width:100%;justify-content:center;">
+      Registrarse aquí
+    </a>
+
+    <!-- Theme toggle in auth -->
+    <div style="text-align:center;margin-top:24px;">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" style="margin:0 auto;" title="Cambiar tema">🌙</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePwd() {
+  const f = document.getElementById('passwordField');
+  f.type = f.type === 'password' ? 'text' : 'password';
+}
+</script>
+{% endblock %}

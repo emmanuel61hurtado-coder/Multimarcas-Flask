@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 800px;">
+    <div class="page-header text-center mb-5">
+        <h1 class="page-title">Finalizar <span>Pedido</span></h1>
+        <p class="page-subtitle">Elige cómo quieres recibir tus repuestos</p>
+    </div>
+
+    <form method="POST" class="card-brazo p-5 shadow-lg" style="border-radius: 20px;">
+        <div class="row g-4">
+            <div class="col-12">
+                <h5 class="mb-3" style="color: var(--red); font-weight: 800; letter-spacing: 1px;">1. MÉTODO DE ENTREGA</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-check card-brazo p-3" style="cursor: pointer; transition: 0.3s;">
+                            <input class="form-check-input" type="radio" name="metodo_entrega" id="metodoTaller" value="Taller" checked onchange="toggleDireccion()">
+                            <label class="form-check-label w-100" for="metodoTaller" style="cursor: pointer;">
+                                <div style="font-weight: 700;">🏠 Recoger en Taller</div>
+                                <small class="text-muted">Gratis - Te avisaremos cuando esté listo.</small>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check card-brazo p-3" style="cursor: pointer; transition: 0.3s;">
+                            <input class="form-check-input" type="radio" name="metodo_entrega" id="metodoEnvio" value="Envío" onchange="toggleDireccion()">
+                            <label class="form-check-label w-100" for="metodoEnvio" style="cursor: pointer;">
+                                <div style="font-weight: 700;">🚚 Envío a Domicilio</div>
+                                <small class="text-muted">Costo contra entrega.</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12" id="seccionDireccion" style="display: none;">
+                <h5 class="mb-3" style="color: var(--red); font-weight: 800; letter-spacing: 1px;">2. DIRECCIÓN DE ENVÍO</h5>
+                <div class="mb-3">
+                    <label class="form-label-brazo">Dirección Completa</label>
+                    <input type="text" name="direccion" id="inputDireccion" class="form-input-brazo" placeholder="Ej: Calle 123 #45-67 Barrio Central">
+                </div>
+            </div>
+
+            <div class="col-12">
+                <h5 class="mb-3" style="color: var(--red); font-weight: 800; letter-spacing: 1px;">3. CONTACTO</h5>
+                <div class="mb-3">
+                    <label class="form-label-brazo">Teléfono de contacto</label>
+                    <input type="text" name="telefono" class="form-input-brazo" value="{{ current_user.telefono or '' }}" placeholder="Tu número para coordinar">
+                </div>
+            </div>
+
+            <div class="col-12 mt-5">
+                <div class="alert alert-info bg-dark border-info text-info" style="border-radius: 15px;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Nota:</strong> Los pagos se coordinan de forma manual. Una vez realices el pedido, nos pondremos en contacto contigo vía WhatsApp o teléfono para indicarte los medios de pago (Transferencia/Efectivo).
+                </div>
+                <button type="submit" class="btn-primary-brazo w-100 py-3 mt-3" style="font-size: 1.2rem; border-radius: 50px;">
+                    🏁 Confirmar Mi Pedido
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleDireccion() {
+    const isEnvio = document.getElementById('metodoEnvio').checked;
+    const seccion = document.getElementById('seccionDireccion');
+    const input = document.getElementById('inputDireccion');
+    
+    if (isEnvio) {
+        seccion.style.display = 'block';
+        input.required = true;
+    } else {
+        seccion.style.display = 'none';
+        input.required = false;
+    }
+}
+</script>
+{% endblock %}

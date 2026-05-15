@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Agregar Moto - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px;padding-bottom:80px;max-width:680px;">
+  <div class="page-header">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn-back-striking">⬅️ Volver</a>
+    <h1 class="page-title">Agregar <span>Moto</span></h1>
+  </div>
+
+  <form method="POST" class="form-brazo">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label-brazo">Marca *</label>
+        <select name="marca" class="form-input-brazo" required>
+          <option value="">Selecciona la marca</option>
+          {% for m in ['Yamaha','Honda','Suzuki','Kawasaki','KTM','Bajaj','AKT','TVS','Royal Enfield','BMW','Ducati','Husqvarna','Beta','Hero','Pulsar'] %}
+          <option value="{{ m }}">{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Modelo *</label>
+        <input type="text" name="modelo" class="form-input-brazo" placeholder="Ej: FZ 25, CB190R" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Placa *</label>
+        <input type="text" name="placa" class="form-input-brazo" placeholder="Ej: ABC123" required style="text-transform:uppercase;">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Año</label>
+        <input type="number" name="año" class="form-input-brazo" placeholder="Ej: 2022" min="1980" max="2025">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Color</label>
+        <input type="text" name="color" class="form-input-brazo" placeholder="Ej: Negro mate">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label-brazo">Cilindraje</label>
+        <input type="text" name="cilindraje" class="form-input-brazo" placeholder="Ej: 250cc">
+      </div>
+      <div class="col-12" style="margin-top:8px;">
+        <button type="submit" class="btn-primary-brazo">＋ Agregar Moto</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

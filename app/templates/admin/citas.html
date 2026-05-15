@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}Agenda de Carreras - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- CABECERA -->
+    <!-- ERROR 1 CORREGIDO: Faltaba el botón "Nueva Cita" en la cabecera -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+            <div>
+                <h2 class="page-title" style="margin:0;">Agenda de <span>Carreras</span></h2>
+                <p class="text-muted mb-0" style="font-size: 13px;">Gestión completa de citas del taller</p>
+            </div>
+        </div>
+        <a href="#" class="btn-nav-action">+ NUEVA CITA</a>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+    <form method="GET" action="{{ url_for('admin.citas') }}" class="mb-4 p-3 card-brazo" style="background: rgba(255,255,255,0.02);">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label-brazo" style="font-size: 10px;">BUSCAR (CLIENTE, PLACA, SERVICIO)</label>
+                <input type="text" name="q" class="form-input-brazo" value="{{ search_query or '' }}" placeholder="Buscar...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label-brazo" style="font-size: 10px;">DESDE</label>
+                <input type="date" name="fecha_inicio" class="form-input-brazo" value="{{ fecha_inicio or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label-brazo" style="font-size: 10px;">HASTA</label>
+                <input type="date" name="fecha_fin" class="form-input-brazo" value="{{ fecha_fin or '' }}">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn-primary-brazo w-100" style="padding: 10px; font-size: 12px;"><i class="fas fa-search me-2"></i> FILTRAR</button>
+                {% if search_query or fecha_inicio or fecha_fin %}
+                <a href="{{ url_for('admin.citas') }}" class="btn-outline-brazo d-flex align-items-center justify-content-center" style="padding: 0 15px;" title="Limpiar filtros">
+                    <i class="fas fa-times"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    <!-- ERROR 2 CORREGIDO: 'in' no es un test válido en Jinja2 selectattr -->
+    <!-- ERROR 3 CORREGIDO: 'eq' no existe en Jinja2, el test correcto es 'equalto' -->
+    {% set pendientes = (citas | selectattr('estado', 'equalto', 'pendiente') | list) + (citas | selectattr('estado', 'equalto', 'confirmada') | list) %}
+    {% set completadas = citas | selectattr('estado', 'equalto', 'completada') | list %}
+    {% set canceladas  = citas | selectattr('estado', 'equalto', 'cancelada')  | list %}
+
+    <!-- STATS RÁPIDAS -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card-brazo p-3 text-center stat-card" id="card-activas" onclick="toggleSection('activas-section', this)" style="border-top: 3px solid var(--accent); cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:28px;font-weight:900;">{{ pendientes|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:10px;">ACTIVAS</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-brazo p-3 text-center stat-card" id="card-completadas" onclick="toggleSection('completadas-section', this)" style="border-top: 3px solid #10b981; cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:28px;font-weight:900;">{{ completadas|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:10px;">COMPLETADAS</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-brazo p-3 text-center stat-card" id="card-canceladas" onclick="toggleSection('canceladas-section', this)" style="border-top: 3px solid #ef4444; cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:28px;font-weight:900;">{{ canceladas|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:10px;">CANCELADAS</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-brazo p-3 text-center stat-card" id="card-total" onclick="showAllSections(this)" style="border-top: 3px solid var(--red); cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:28px;font-weight:900; color: var(--text);">{{ citas|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:10px;">MOSTRAR TODO</small>
+            </div>
+        </div>
+    </div>
+
+    {% macro render_cita_card(cita, show_actions=True) %}
+    {% set cita_color = '#f59e0b' if cita.estado == 'pendiente' else '#3b82f6' if cita.estado == 'confirmada' else '#10b981' if cita.estado == 'completada' else '#ef4444' %}
+    {% set badge_class = 'bg-warning text-dark' if cita.estado == 'pendiente' else 'bg-info' if cita.estado == 'confirmada' else 'bg-success' if cita.estado == 'completada' else 'bg-danger' %}
+    {% set card_style = 'style="border-top: 3px solid ' ~ cita_color ~ ';"' %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card-brazo p-4 h-100 position-relative overflow-hidden" {{ card_style | safe }}>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div style="font-family: var(--font-display); font-weight: 900; font-style: italic; color: var(--text);">
+                    <div style="font-size: 20px;">{{ cita.fecha.strftime('%d/%m') }}</div>
+                    <div style="font-size: 14px; color: var(--red);">{{ cita.fecha.strftime('%H:%M') }}</div>
+                </div>
+                <span class="badge {{ badge_class }}" style="font-size: 10px; transform: skewX(-10deg);">
+                    {{ cita.estado | upper }}
+                </span>
+            </div>
+
+            <div class="mb-4">
+                <h5 style="font-family: var(--font-ui); font-weight: 800; text-transform: uppercase; margin: 0; color: var(--accent);">
+                    {{ cita.tipo_servicio }}
+                </h5>
+                <div class="mt-2 pt-2 border-top border-secondary border-opacity-10">
+                    <div class="small"><i class="fas fa-user text-muted me-2"></i> <b>{{ cita.cliente.nombre_completo if cita.cliente else 'Sin asignar' }}</b></div>
+                    <div class="small mt-1"><i class="fas fa-motorcycle text-muted me-2"></i> 
+                        {% if cita.moto %}<span style="color: var(--red); font-weight: 700;">{{ cita.moto.placa }}</span> ({{ cita.moto.marca }}){% else %}—{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if show_actions %}
+            <!-- ERRORES 5, 6, 7 CORREGIDOS: Botones usaban clases Bootstrap estándar en vez de clases Brazo -->
+            <div class="mt-auto pt-3 d-flex gap-2 border-top border-secondary border-opacity-10">
+                <button class="btn-outline-brazo btn-sm-brazo flex-grow-1" data-bs-toggle="modal" data-bs-target="#editCita{{ cita.id }}">
+                    <i class="fas fa-edit"></i> EDITAR
+                </button>
+                {% if cita.estado in ['pendiente', 'confirmada'] %}
+                <a href="{{ url_for('admin.nueva_factura', cita_id=cita.id) }}" class="btn-primary-brazo btn-sm-brazo">
+                    <i class="fas fa-file-invoice-dollar"></i> FACTURAR
+                </a>
+                <form action="{{ url_for('admin.cambiar_estado_cita', cid=cita.id) }}" method="POST" style="margin:0;">
+                    <input type="hidden" name="estado" value="cancelada">
+                    <button type="submit" class="btn-outline-brazo btn-sm-brazo" style="border-color:#ef4444; color:#ef4444;" onclick="return confirm('¿Cancelar cita?');">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endmacro %}
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🔴 SECCIÓN 1: CITAS ACTIVAS (Pendientes + Confirmadas) -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div class="mb-5 section-content" id="activas-section">
+        <div class="d-flex align-items-center justify-content-between mb-3" style="background: rgba(232, 0, 13, 0.05); padding: 15px; border-radius: 4px; border-left: 5px solid var(--red);">
+            <span style="color: var(--text); font-weight: 900; letter-spacing: 2px; font-size: 14px;">🔴 EN PISTA — CITAS ACTIVAS ({{ pendientes|length }})</span>
+        </div>
+
+        {% if pendientes %}
+        <div class="row g-4">
+            {% for cita in pendientes %}
+                {{ render_cita_card(cita) }}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card-brazo text-center py-5" style="border: 1px dashed rgba(255,255,255,0.1);">
+            <div style="font-size:40px;opacity:0.3;">📋</div>
+            <p class="text-muted mb-0 mt-2">No hay citas activas en este momento.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 🏁 SECCIÓN 2: CITAS COMPLETADAS -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div class="mb-5 section-content" id="completadas-section" style="display:none;">
+        <div class="d-flex align-items-center justify-content-between mb-3" style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 4px; border-left: 5px solid #10b981;">
+            <!-- ERROR 8 CORREGIDO: color: var(--white) no existe como CSS var, se usaba texto invisible -->
+            <span style="color: var(--text); font-weight: 900; letter-spacing: 2px; font-size: 14px;">🏁 FINALIZADAS ({{ completadas|length }})</span>
+        </div>
+
+        {% if completadas %}
+        <div class="row g-4">
+            {% for cita in completadas %}
+                {{ render_cita_card(cita) }}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card-brazo text-center py-4" style="border: 1px dashed rgba(255,255,255,0.1);">
+            <p class="text-muted mb-0">No hay citas completadas aún.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- ❌ SECCIÓN 3: CITAS CANCELADAS -->
+    <!-- ERROR 9 CORREGIDO: Usaba Bootstrap collapse anidado dentro de section-content,
+         lo que hacía que el botón de la tarjeta de stats no la mostrara correctamente -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div class="mb-4 section-content" id="canceladas-section" style="display:none;">
+        <div class="d-flex align-items-center justify-content-between mb-3" style="background: rgba(239, 68, 68, 0.08); padding: 15px; border-radius: 4px; border-left: 5px solid #ef4444;">
+            <span style="color: var(--text); font-weight: 900; letter-spacing: 2px; font-size: 14px;">❌ CANCELADAS ({{ canceladas|length }})</span>
+        </div>
+        {% if canceladas %}
+        <div class="row g-4">
+            {% for cita in canceladas %}
+                {{ render_cita_card(cita, show_actions=False) }}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card-brazo text-center py-4" style="border: 1px dashed rgba(255,255,255,0.1);">
+            <p class="text-muted mb-0">No hay citas canceladas.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- MODALES DE EDICIÓN (uno por cada cita) -->
+<!-- ═══════════════════════════════════════════════ -->
+{% for cita in citas %}
+<div class="modal fade" id="editCita{{ cita.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border); padding: 20px 25px;">
+                <h5 class="modal-title" style="font-family:var(--font-display);font-weight:900;color:var(--accent);font-style:italic;transform:var(--racer-skew);">
+                    EDITAR CITA #{{ cita.id }}
+                </h5>
+                <!-- ERROR 10 CORREGIDO: btn-close-white no existe en Bootstrap 5, provoca icono invisible -->
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1) brightness(2);"></button>
+            </div>
+            <form action="{{ url_for('admin.editar_cita', cid=cita.id) }}" method="POST" onsubmit="return verificarCompletada(this)">
+                <div class="modal-body" style="padding: 25px;">
+                    <!-- Info del cliente (solo lectura) -->
+                    <div class="card-brazo p-3 mb-4" style="background:rgba(255,255,255,0.02);">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted d-block">CLIENTE</small>
+                                {% set info_user = cita.cliente.nombre_completo if cita.cliente else 'Sin asignar' %}
+                                <span style="font-weight:700;">{{ info_user }}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">MOTO</small>
+                                {% set info_moto = (cita.moto.marca ~ ' ' ~ cita.moto.modelo ~ ' (' ~ cita.moto.placa ~ ')') if cita.moto else '—' %}
+                                <span style="font-weight:700;">{{ info_moto }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Fecha -->
+                        <div class="col-6">
+                            <label class="form-label-brazo">Fecha</label>
+                            <input type="date" name="fecha" class="form-input-brazo" value="{{ cita.fecha.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        <!-- La hora se extrae de cita.fecha -->
+                        <div class="col-6">
+                            <label class="form-label-brazo">Hora</label>
+                            <input type="time" name="hora" class="form-input-brazo" value="{{ cita.fecha.strftime('%H:%M') }}" required>
+                        </div>
+                        <!-- Tipo de servicio -->
+                        <div class="col-12">
+                            <label class="form-label-brazo">Tipo de Servicio</label>
+                            <select name="tipo_servicio" class="form-input-brazo">
+                                {% for s in ['Mantenimiento Preventivo','Cambio de Aceite','Revisión General','Mecánica Especializada','Electricidad','Lavado y Detallado','Frenos','Suspensión','Motor','Sincronización','Reparación de Motor','Otro'] %}
+                                <option value="{{ s }}" {{ 'selected' if cita.tipo_servicio == s }}>{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <!-- Descripción -->
+                        <div class="col-12">
+                            <label class="form-label-brazo">Descripción</label>
+                            <textarea name="descripcion" class="form-input-brazo" rows="3">{{ cita.descripcion or '' }}</textarea>
+                        </div>
+                        <!-- Estado -->
+                        <div class="col-12">
+                            <label class="form-label-brazo">Estado</label>
+                            <select name="estado" class="form-input-brazo">
+                                <option value="pendiente" {{ 'selected' if cita.estado == 'pendiente' }}>🟡 Pendiente</option>
+                                <option value="confirmada" {{ 'selected' if cita.estado == 'confirmada' }}>🔵 Confirmada</option>
+                                <option value="completada" {{ 'selected' if cita.estado == 'completada' }}>🟢 Completada</option>
+                                <option value="cancelada" {{ 'selected' if cita.estado == 'cancelada' }}>🔴 Cancelada</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border); padding: 15px 25px;">
+                    <button type="button" class="btn-outline-brazo" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-primary-brazo">
+                        <i class="fas fa-save"></i> GUARDAR CAMBIOS
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function verificarCompletada(form) {
+    const estadoSelect = form.querySelector('select[name="estado"]');
+    if (estadoSelect && estadoSelect.value === 'completada') {
+        const fechaInput = form.querySelector('input[name="fecha"]');
+        const horaInput = form.querySelector('input[name="hora"]');
+        
+        if (fechaInput && horaInput && fechaInput.value && horaInput.value) {
+            const citaDateTime = new Date(`${fechaInput.value}T${horaInput.value}`);
+            const now = new Date();
+            
+            if (now < citaDateTime) {
+                return confirm('⚠️ ADVERTENCIA ⚠️\n\nEsta cita está programada para el futuro.\n¿Seguro que quieres dar por completada esta cita antes de tiempo?');
+            }
+        }
+    }
+    return true;
+}
+
+function toggleSection(sectionId, element) {
+    document.querySelectorAll('.section-content').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    updateCardStyles(element);
+}
+
+function showAllSections(element) {
+    document.querySelectorAll('.section-content').forEach(section => {
+        section.style.display = 'block';
+    });
+    updateCardStyles(element);
+}
+
+function updateCardStyles(activeElement) {
+    document.querySelectorAll('.stat-card').forEach(card => {
+        card.style.transform = 'scale(1)';
+        card.style.boxShadow = 'none';
+        card.style.opacity = '0.6';
+    });
+    activeElement.style.transform = 'scale(1.05)';
+    activeElement.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
+    activeElement.style.opacity = '1';
+}
+
+// ERROR corregido: La sección activas ahora inicia visible por defecto
+document.addEventListener('DOMContentLoaded', () => {
+    // Ocultar completadas y canceladas
+    document.querySelectorAll('.section-content').forEach(section => {
+        if (section.id !== 'activas-section') {
+            section.style.display = 'none';
+        }
+    });
+
+    // Activar visualmente la tarjeta "ACTIVAS" por defecto
+    const cardActivas = document.getElementById('card-activas');
+    if (cardActivas) {
+        updateCardStyles(cardActivas);
+    }
+});
+</script>
+
+{% endblock %}

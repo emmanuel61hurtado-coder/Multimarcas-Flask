@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Detalle Cita - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px;padding-bottom:80px;max-width:800px;">
+  <div class="page-header">
+    <a href="{{ url_for('admin.citas') }}" class="btn-back-striking">⬅️ Volver</a>
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <h1 class="page-title">Detalle del <span>Servicio</span></h1>
+      <span class="badge-brazo badge-{{ cita.estado }}" style="font-size:12px;padding:6px 16px;">{{ cita.estado.upper() }}</span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card-brazo" style="height:100%;">
+        <div style="height:180px;background:var(--bg-card2);display:flex;align-items:center;justify-content:center;font-size:80px;border-bottom:1px solid var(--border);">
+          ⚙️
+        </div>
+        <div style="padding:24px;">
+          <h3 style="font-family:var(--font-display);font-size:22px;font-weight:800;margin-bottom:16px;">
+            {{ cita.tipo_servicio }}
+          </h3>
+          {% if cita.descripcion %}
+          <p style="color:var(--text-muted);font-size:14px;line-height:1.7;">{{ cita.descripcion }}</p>
+          {% endif %}
+          {% if cita.total and cita.total > 0 %}
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+            <div style="font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Total</div>
+            <div style="font-family:var(--font-display);font-size:36px;font-weight:800;color:var(--red);">
+              ${{ '{:,.0f}'.format(cita.total) }}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card-brazo" style="padding:24px;">
+        <h4 style="font-family:var(--font-ui);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:20px;">Información de la Cita</h4>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border);">
+            <span style="font-size:13px;color:var(--text-muted);">📅 Fecha</span>
+            <strong style="font-family:var(--font-ui);font-weight:700;">{{ cita.fecha.strftime('%d de %B, %Y') }}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border);">
+            <span style="font-size:13px;color:var(--text-muted);">🕐 Hora</span>
+            <strong style="font-family:var(--font-ui);font-weight:700;">{{ cita.hora.strftime('%I:%M %p') }}</strong>
+          </div>
+          {% if cita.moto %}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border);">
+            <span style="font-size:13px;color:var(--text-muted);">🏍️ Moto</span>
+            <strong style="font-family:var(--font-ui);font-weight:700;">{{ cita.moto.marca }} {{ cita.moto.modelo }}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border);">
+            <span style="font-size:13px;color:var(--text-muted);">🔢 Placa</span>
+            <strong style="font-family:var(--font-ui);font-weight:700;">{{ cita.moto.placa }}</strong>
+          </div>
+          {% endif %}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border);">
+            <span style="font-size:13px;color:var(--text-muted);">👤 Cliente</span>
+            <strong style="font-family:var(--font-ui);font-weight:700;">{{ cita.cliente.nombre_completo }}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--text-muted);">📞 Teléfono</span>
+            <strong style="font-family:var(--font-ui);font-weight:700;">{{ cita.cliente.telefono or 'N/A' }}</strong>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:28px;">
+          {% if cita.estado in ['pendiente', 'confirmada'] %}
+          <a href="{{ url_for('citas.editar', cid=cita.id) }}" class="btn-outline-brazo btn-sm-brazo" style="flex:1;justify-content:center;">✏️ Editar Cita</a>
+          <form method="POST" action="{{ url_for('citas.cancelar', cid=cita.id) }}" style="flex:1;">
+            <button type="submit" class="btn-primary-brazo btn-sm-brazo" style="width:100%;justify-content:center;"
+                    data-confirm="¿Cancelar esta cita?">🗑 Cancelar</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

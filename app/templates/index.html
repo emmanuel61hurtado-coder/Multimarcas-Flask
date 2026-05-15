@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Motos - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:40px;padding-bottom:80px;">
+  <div class="page-header d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div>
+      <h1 class="page-title">Nuestras <span>Motos</span></h1>
+      <p class="page-subtitle">Explora las motos que atendemos</p>
+    </div>
+    <a href="{{ url_for('motos.agregar') }}" class="btn-primary-brazo btn-sm-brazo">
+      ＋ Agregar Moto
+    </a>
+  </div>
+
+  {% if motos %}
+  <div class="motos-grid">
+    {% for moto in motos %}
+    <div class="moto-card">
+      <div class="moto-img-placeholder">🏍️</div>
+      <div class="moto-info">
+        <div class="moto-brand">{{ moto.marca }}</div>
+        <div class="moto-model">{{ moto.modelo }}</div>
+        <div class="moto-plate">
+          Placa: <strong>{{ moto.placa }}</strong>
+          {% if moto.año %} · Año: {{ moto.año }}{% endif %}
+        </div>
+        {% if moto.color %}<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Color: {{ moto.color }}</div>{% endif %}
+        {% if current_user.is_empleado() %}
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+          👤 {{ moto.propietario.nombre_completo }}
+        </div>
+        {% endif %}
+      </div>
+      <div class="moto-actions">
+        <a href="{{ url_for('motos.editar', mid=moto.id) }}" class="btn-outline-brazo btn-sm-brazo" style="flex:1;justify-content:center;">✏️ Editar</a>
+        <form method="POST" action="{{ url_for('motos.eliminar', mid=moto.id) }}" style="flex:1;">
+          <button type="submit" class="btn-primary-brazo btn-sm-brazo" style="width:100%;justify-content:center;background:rgba(232,0,13,0.15);color:var(--red);"
+                  data-confirm="¿Eliminar esta moto?">
+            🗑 Eliminar
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:80px 20px;">
+    <div style="font-size:64px;margin-bottom:20px;">🏍️</div>
+    <h3 style="font-family:var(--font-display);font-size:28px;font-weight:800;margin-bottom:12px;">Sin motos registradas</h3>
+    <p style="color:var(--text-muted);margin-bottom:28px;">Agrega tu primera moto para comenzar</p>
+    <a href="{{ url_for('motos.agregar') }}" class="btn-primary-brazo">＋ Agregar Mi Moto</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

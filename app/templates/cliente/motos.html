@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Motos - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-3" style="position: relative; z-index: 10;">
+        <a href="{{ url_for('cliente.dashboard') }}" class="btn-back-striking" style="position: relative; z-index: 11;"><i class="fas fa-chevron-left"></i> VOLVER</a>
+        <h2 class="page-title" style="font-size: 28px; margin: 0;">Mis <span>Motos</span></h2>
+    </div>
+    <button class="btn-nav-action" data-bs-toggle="modal" data-bs-target="#modalMoto">+ Agregar Moto</button>
+  </div>
+
+  {% if motos %}
+  <div class="row g-4">
+    {% for moto in motos %}
+    <div class="col-md-4">
+      <div class="card-brazo" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ moto.id }}">
+        <div class="moto-img-placeholder">
+          🏍️
+        </div>
+        <div class="moto-info">
+          <div class="moto-brand">{{ moto.marca }}</div>
+          <div class="moto-model">{{ moto.modelo }}</div>
+          <div class="moto-plate" style="background: var(--red); color: white; display: inline-block; padding: 2px 10px; border-radius: 4px; font-weight: 900; margin-top: 10px; transform: skewX(-15deg); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 10px var(--red-glow);">
+            {{ moto.placa }}
+          </div>
+          <div style="margin-top: 15px; font-size: 13px; color: var(--text-muted);">
+            {% if moto.cilindraje %}<span>CC: {{ moto.cilindraje }}</span> | {% endif %}
+            {% if moto.color %}<span>Color: {{ moto.color }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Detalle de Moto -->
+    <div class="modal fade" id="modalDetalle{{ moto.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text);">
+          <div class="modal-header" style="border-bottom: 1px solid var(--border); padding: 25px;">
+            <div>
+              <h4 class="modal-title" style="font-family: var(--font-display); font-weight: 900; color: var(--red); font-style: italic; transform: var(--racer-skew);">
+                {{ moto.marca }} {{ moto.modelo }}
+              </h4>
+              <div class="moto-plate" style="background: var(--red); color: white; padding: 2px 12px; border-radius: 4px; font-weight: 900; font-size: 14px; transform: skewX(-15deg); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 10px var(--red-glow);">
+                {{ moto.placa }}
+              </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" style="padding: 30px;">
+            <div class="row g-4">
+              <!-- Info Técnica -->
+              <div class="col-md-5">
+                <h5 style="font-family: var(--font-ui); color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-size: 14px; margin-bottom: 20px;">
+                  🛠️ Información Técnica
+                </h5>
+                <div style="background: var(--bg-card2); padding: 20px; border-radius: 12px; border: 1px solid var(--border);">
+                  <div class="mb-3">
+                    <small style="color: var(--text-muted); display: block;">Marca</small>
+                    <span style="font-weight: 600;">{{ moto.marca }}</span>
+                  </div>
+                  <div class="mb-3">
+                    <small style="color: var(--text-muted); display: block;">Modelo</small>
+                    <span style="font-weight: 600;">{{ moto.modelo }}</span>
+                  </div>
+                  <div class="mb-3">
+                    <small style="color: var(--text-muted); display: block;">Cilindraje</small>
+                    <span style="font-weight: 600;">{{ moto.cilindraje or 'No especificado' }}</span>
+                  </div>
+                  <div class="mb-3">
+                    <small style="color: var(--text-muted); display: block;">Color</small>
+                    <span style="font-weight: 600;">{{ moto.color or 'No especificado' }}</span>
+                  </div>
+                  <div class="mb-0">
+                    <small style="color: var(--text-muted); display: block;">Año</small>
+                    <span style="font-weight: 600;">{{ moto.año or 'No especificado' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Historial -->
+              <div class="col-md-7">
+                <h5 style="font-family: var(--font-ui); color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-size: 14px; margin-bottom: 20px;">
+                  📜 Historial de Trabajos
+                </h5>
+                {% if moto.citas %}
+                <div style="max-height: 300px; overflow-y: auto; padding-right: 10px;">
+                  {% for cita in moto.citas | sort(attribute='fecha', reverse=True) %}
+                  <div style="padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <div style="font-weight: 600; font-size: 14px;">{{ cita.tipo_servicio }}</div>
+                      <div style="font-size: 12px; color: var(--text-muted);">{{ cita.fecha.strftime('%d/%m/%Y') }}</div>
+                    </div>
+                    <span class="badge-brazo badge-{{ cita.estado }}" style="font-size: 9px;">
+                      {{ cita.estado }}
+                    </span>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4" style="background: var(--bg-card2); border-radius: 12px; border: 1px dashed var(--border);">
+                  <p class="text-muted mb-0" style="font-size: 13px;">No hay trabajos registrados para esta moto.</p>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer" style="border-top: 1px solid var(--border); padding: 20px;">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <a href="{{ url_for('citas.nueva') }}" class="btn-primary-brazo">📅 Agendar Nueva Cita</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <div style="font-size: 60px; opacity: 0.3;">🏍️</div>
+    <h4 class="mt-3">Aún no tienes motos registradas</h4>
+    <p class="text-muted">Agrega tu primera moto para agilizar tus próximas citas.</p>
+    <button class="btn-nav-action mt-3" data-bs-toggle="modal" data-bs-target="#modalMoto">Registrar mi Moto</button>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- Modal para Agregar Moto -->
+<div class="modal fade" id="modalMoto" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border);">
+        <h5 class="modal-title">🏍️ Registrar Nueva Moto</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ url_for('cliente.agregar_moto') }}" method="POST">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label-brazo">Marca</label>
+              <input type="text" name="marca" class="form-input-brazo" placeholder="Ej: Yamaha" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-brazo">Modelo</label>
+              <input type="text" name="modelo" class="form-input-brazo" placeholder="Ej: FZ 25" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-brazo">Placa</label>
+              <input type="text" name="placa" class="form-input-brazo" placeholder="Ej: ABC12D" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-brazo">Cilindraje</label>
+              <input type="text" name="cilindraje" class="form-input-brazo" placeholder="Ej: 250">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-brazo">Color</label>
+              <input type="text" name="color" class="form-input-brazo" placeholder="Ej: Negro Mate">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-brazo">Año</label>
+              <input type="number" name="año" class="form-input-brazo" placeholder="Ej: 2023">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid var(--border);">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn-primary-brazo">💾 Guardar Moto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

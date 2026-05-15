@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Agenda tu Cita - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="page-header text-center mb-5">
+    <div class="mb-3">
+      <a href="{{ url_for('cliente.dashboard') if current_user.is_authenticated else url_for('home.index') }}" class="btn-back-striking">⬅️ Volver</a>
+    </div>
+    <h1 class="page-title">Tu Turno en <span>Pista</span></h1>
+    <p class="page-subtitle">Organiza el ingreso de tu máquina con anticipación y confianza</p>
+  </div>
+
+  <div class="row g-5 align-items-center">
+    <div class="col-lg-6">
+      <div class="card-brazo p-5 shadow-lg" style="border-left: 8px solid var(--red);">
+        <h2 style="font-family: var(--font-display); font-weight: 900; font-style: italic; transform: var(--racer-skew); color: var(--red); margin-bottom: 25px;">Consejos de Campeón</h2>
+        
+        <div class="mb-4 d-flex gap-3">
+          <div style="font-size: 24px;">⏳</div>
+          <div>
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 14px;">Anticipación es Clave</h4>
+            <p class="text-muted" style="font-size: 14px;">Nuestra agenda se llena rápido debido a la alta demanda. Te recomendamos agendar con al menos 3 días de antelación para asegurar tu cupo.</p>
+          </div>
+        </div>
+
+        <div class="mb-4 d-flex gap-3">
+          <div style="font-size: 24px;">🧘</div>
+          <div>
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 14px;">Paciencia y Precisión</h4>
+            <p class="text-muted" style="font-size: 14px;">Un trabajo bien hecho requiere tiempo. No aceleramos los procesos técnicos para no comprometer la calidad. Tu moto merece ese respeto.</p>
+          </div>
+        </div>
+
+        <div class="mb-0 d-flex gap-3">
+          <div style="font-size: 24px;">🤝</div>
+          <div>
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 14px;">Confianza Total</h4>
+            <p class="text-muted" style="font-size: 14px;">Sabemos lo que tu máquina significa para ti. En Multimarcas Brazo, tratamos cada moto como si fuera nuestra propia moto de carreras.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="p-4">
+        <h3 style="font-family: var(--font-display); font-weight: 900; margin-bottom: 30px; font-style: italic; transform: var(--racer-skew);">¿Cómo funciona el proceso?</h3>
+        
+        <ul style="list-style: none; padding: 0;">
+          <li class="mb-4 d-flex align-items-center gap-3">
+            <span style="background: var(--red); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; transform: skewX(-15deg);">1</span>
+            <span style="font-size: 16px;"><strong>Regístrate</strong> y añade tu moto a tu panel personal.</span>
+          </li>
+          <li class="mb-4 d-flex align-items-center gap-3">
+            <span style="background: var(--red); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; transform: skewX(-15deg);">2</span>
+            <span style="font-size: 16px;"><strong>Agenda</strong> seleccionando el servicio y la fecha deseada.</span>
+          </li>
+          <li class="mb-4 d-flex align-items-center gap-3">
+            <span style="background: var(--red); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; transform: skewX(-15deg);">3</span>
+            <span style="font-size: 16px;"><strong>Confirma</strong> y trae tu máquina al taller en la hora pactada.</span>
+          </li>
+        </ul>
+
+        <div class="mt-5">
+          <a href="{{ url_for('citas.nueva') }}" class="btn-primary-brazo" style="width: 100%; text-align: center; padding: 20px;">📅 Agendar Ahora</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

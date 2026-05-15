@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Calidad en Repuestos - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="page-header text-center mb-5">
+    <div class="mb-3">
+      <a href="{{ url_for('cliente.dashboard') if current_user.is_authenticated else url_for('home.index') }}" class="btn-back-striking">⬅️ Volver</a>
+    </div>
+    <h1 class="page-title">Componentes de <span>Alto Grado</span></h1>
+    <p class="page-subtitle">Solo instalamos piezas que nosotros mismos usaríamos en pista</p>
+  </div>
+
+  <div class="row g-4 align-items-stretch">
+    <!-- Columna Izquierda: Texto -->
+    <div class="col-lg-5">
+      <div class="p-4">
+        <h2 style="font-family: var(--font-display); font-weight: 950; font-style: italic; transform: var(--racer-skew); color: var(--red); margin-bottom: 25px;">Calidad sin Concesiones</h2>
+        <p style="font-size: 17px; line-height: 1.8; color: var(--text-muted);">
+          En <strong>Multimarcas Brazo</strong>, entendemos que la seguridad y el rendimiento dependen de cada tornillo. Por eso, manejamos un inventario rigurosamente seleccionado de las mejores marcas del mercado.
+        </p>
+        <p style="font-size: 17px; line-height: 1.8; color: var(--text-muted); margin-top: 20px;">
+          Garantizamos la **mejor relación precio-calidad**, asegurando que obtengas repuestos duraderos que protejan la vida útil de tu motor y mejoren tu experiencia de manejo.
+        </p>
+
+        <div class="mt-5">
+          <a href="{{ url_for('repuestos.index') }}" class="btn-primary-brazo" style="padding: 15px 35px;">📦 Ver Catálogo en Stock</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Columna Derecha: Cuadrícula de Valores -->
+    <div class="col-lg-7">
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <div class="card-brazo p-4 h-100 shadow-sm" style="border-top: 4px solid var(--gold);">
+            <div style="font-size: 30px; margin-bottom: 15px;">🛡️</div>
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--gold);">Marcas Originales</h4>
+            <p class="text-muted" style="font-size: 13px;">Yamaha, Honda, KTM y más. Repuestos certificados por el fabricante.</p>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card-brazo p-4 h-100 shadow-sm">
+            <div style="font-size: 30px; margin-bottom: 15px;">🏁</div>
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--red);">Grado Competición</h4>
+            <p class="text-muted" style="font-size: 13px;">Accesorios y piezas de alto rendimiento para los más exigentes.</p>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card-brazo p-4 h-100 shadow-sm">
+            <div style="font-size: 30px; margin-bottom: 15px;">💰</div>
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--red);">Precio Garantizado</h4>
+            <p class="text-muted" style="font-size: 13px;">Costos justos y transparentes sin sacrificar la excelencia técnica.</p>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card-brazo p-4 h-100 shadow-sm" style="border-top: 4px solid var(--gold);">
+            <div style="font-size: 30px; margin-bottom: 15px;">⭐</div>
+            <h4 style="font-weight: 800; text-transform: uppercase; font-size: 15px; color: var(--gold);">Garantía de Taller</h4>
+            <p class="text-muted" style="font-size: 13px;">Respaldamos cada pieza instalada con nuestra mano de obra calificada.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

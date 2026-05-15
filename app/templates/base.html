@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}Multimarcas Brazo{% endblock %}</title>
+
+  <!-- FONTS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- BOOTSTRAP -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- ICON -->
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><polygon points='16,2 30,9 30,23 16,30 2,23 2,9' fill='%23E8000D'/><text x='16' y='22' text-anchor='middle' font-family='Arial Black' font-size='14' fill='white' font-weight='900'>B</text></svg>">
+
+  <!-- THEME -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('brazo-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
+  {% block extra_css %}{% endblock %}
+
+  <style>
+    .logout-fixed {
+        position: fixed;
+        top: 75px;
+        right: 20px;
+        z-index: 10001;
+    }
+
+    .btn-logout-racer {
+        background: var(--red);
+        color: white;
+        padding: 6px 15px;
+        font-family: var(--font-display);
+        font-weight: 900;
+        font-size: 12px;
+        text-transform: uppercase;
+        text-decoration: none;
+        font-style: italic;
+        transform: var(--racer-skew);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        box-shadow: -3px 3px 0 var(--red-dark);
+        transition: 0.2s;
+    }
+
+    .btn-logout-racer:hover {
+        background: white;
+        color: var(--red);
+        transform: var(--racer-skew) translate(1px, -1px);
+        box-shadow: -5px 5px 0 var(--red-glow);
+    }
+
+    @media (max-width: 1100px) {
+        .logout-fixed { top: 10px; right: 10px; }
+    }
+
+    /* 🏎️ ULTRA-PREMIUM HUD NAVBAR */
+    .navbar {
+        background: var(--bg-nav) !important;
+        backdrop-filter: blur(15px);
+        border-bottom: 3px solid var(--red) !important;
+        box-shadow: 0 0 30px var(--red-glow) !important;
+        position: relative;
+        overflow: visible; /* Let the logo breathe */
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+    }
+
+    [data-theme="light"] .navbar {
+        background: rgba(255,255,255,0.9) !important;
+    }
+
+    /* Animated Scanline */
+    .navbar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, var(--red-glow), transparent);
+        animation: scanline 4s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes scanline {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    /* HUD Pattern */
+    .navbar::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: 
+            radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 1px, transparent 1px),
+            linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
+        background-size: 20px 20px, 100% 4px;
+        pointer-events: none;
+    }
+
+    .navbar-status {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text);
+        font-weight: 700;
+        background: rgba(10, 10, 12, 0.6);
+        padding: 5px 15px;
+        border: 1px solid var(--red);
+        border-radius: 4px;
+        box-shadow: 0 0 15px var(--red-glow);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: skewX(-10deg);
+        position: relative;
+    }
+
+    .hud-shortcut-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        padding: 4px 10px;
+        border-right: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: 0.3s;
+        white-space: nowrap;
+    }
+
+    .hud-shortcut-link:last-child { border-right: none; }
+
+    .hud-shortcut-link i {
+        color: var(--red);
+        font-size: 14px;
+    }
+
+    .hud-shortcut-link:hover {
+        color: var(--white);
+        background: rgba(232, 0, 13, 0.15);
+        text-shadow: 0 0 8px var(--red-glow);
+    }
+
+    .hud-shortcut-link.active {
+        color: var(--white);
+        border-bottom: 2px solid var(--red);
+    }
+
+    [data-theme="light"] .navbar-status {
+        background: rgba(255,255,255,0.95);
+        border-color: var(--red-dark);
+    }
+
+    .navbar-status::before {
+        content: 'SYSTEM HUD ACTIVE';
+        position: absolute;
+        top: -15px;
+        left: 0;
+        font-size: 7px;
+        color: var(--red);
+        letter-spacing: 1px;
+        font-weight: 900;
+    }
+
+    .status-indicator {
+        width: 8px;
+        height: 8px;
+        background: #00ff88;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #00ff88;
+        animation: pulseStatus 1.5s infinite;
+    }
+
+    @keyframes pulseStatus {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    #nav-clock {
+        font-family: 'Courier New', Courier, monospace;
+        color: var(--red);
+        font-weight: 900;
+        background: rgba(232,0,13,0.1);
+        padding: 2px 8px;
+        border-radius: 2px;
+    }
+
+    .telemetry-unit {
+        font-size: 10px;
+        color: rgba(255,255,255,0.4);
+    }
+
+    /* 🧭 HUD QUICK MENU (OFFCANVAS) */
+    .hud-offcanvas {
+        background: rgba(10, 10, 12, 0.98) !important;
+        backdrop-filter: blur(20px);
+        border-left: 2px solid var(--red) !important;
+        width: 380px !important;
+        box-shadow: -20px 0 50px rgba(0,0,0,0.8);
+    }
+
+    .hud-menu-header {
+        border-bottom: 1px solid rgba(232,0,13,0.2);
+        padding: 30px;
+    }
+
+    .hud-menu-title {
+        font-family: var(--font-display);
+        font-size: 24px;
+        font-weight: 900;
+        font-style: italic;
+        transform: var(--racer-skew);
+        color: var(--red);
+        text-shadow: 0 0 15px var(--red-glow);
+    }
+
+    .hud-menu-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 20px;
+    }
+
+    .hud-link {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 20px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 4px;
+        text-decoration: none;
+        transition: 0.3s;
+        transform: skewX(-5deg);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hud-link::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0;
+        width: 3px; height: 100%;
+        background: var(--red);
+        transform: scaleY(0);
+        transition: 0.3s;
+    }
+
+    .hud-link:hover {
+        background: rgba(232,0,13,0.1);
+        border-color: var(--red);
+        transform: skewX(-5deg) translateX(8px);
+    }
+
+    .hud-link:hover::before { transform: scaleY(1); }
+
+    .hud-link i {
+        font-size: 20px;
+        color: var(--red);
+        width: 30px;
+        text-align: center;
+    }
+
+    .hud-link-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hud-link-title {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--text);
+        text-transform: uppercase;
+        font-style: italic;
+    }
+
+    .hud-link-desc {
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    .navbar-status:hover {
+        border-color: var(--white);
+        box-shadow: 0 0 25px var(--red-glow);
+    }
+
+    .logo-main {
+        height: 100px;
+        width: auto;
+        object-fit: contain;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        filter: drop-shadow(0 0 15px rgba(232,0,13,0.4));
+        margin-top: -5px;
+        margin-bottom: -5px;
+    }
+
+    .navbar-brand:hover .logo-main {
+        transform: scale(1.15) rotate(-2deg);
+        filter: drop-shadow(0 0 25px var(--red-glow)) brightness(1.2);
+    }
+
+    @media (max-width: 991px) {
+        .logo-main { height: 70px; }
+        .navbar { min-height: 80px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- 🚪 CERRAR SESIÓN FIJO (PARA TODOS) -->
+{% if current_user.is_authenticated %}
+<div class="logout-fixed">
+    <a href="{{ url_for('auth.logout') }}" class="btn-logout-racer">
+        <i class="fas fa-power-off"></i> CERRAR SESIÓN
+    </a>
+</div>
+{% endif %}
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+
+    <!-- LOGO -->
+    <a class="navbar-brand" href="{{ url_for('home.index') }}">
+      <img src="{{ url_for('static', filename='img/logo_brazo.png') }}" alt="Multimarcas Brazo" class="logo-main">
+    </a>
+
+    <!-- MOBILE -->
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span>☰</span>
+    </button>
+
+    <!-- MENU -->
+      <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+        <div class="navbar-status d-none d-lg-block">
+            <div class="d-flex align-items-center">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin() or current_user.is_empleado() %}
+                        <!-- ADMIN SHORTCUTS -->
+                        <a href="{{ url_for('admin.usuarios') }}" class="hud-shortcut-link"><i class="fas fa-users"></i> USUARIOS</a>
+                        <a href="{{ url_for('admin.empleados') }}" class="hud-shortcut-link"><i class="fas fa-user-gear"></i> EQUIPO</a>
+                        <a href="{{ url_for('admin.motos') }}" class="hud-shortcut-link"><i class="fas fa-motorcycle"></i> BASE DATOS</a>
+                        <a href="{{ url_for('admin.citas') }}" class="hud-shortcut-link"><i class="fas fa-calendar-check"></i> AGENDA</a>
+                        <a href="{{ url_for('repuestos.index') }}" class="hud-shortcut-link"><i class="fas fa-box-open"></i> INVENTARIO</a>
+                        <a href="{{ url_for('admin.pedidos') }}" class="hud-shortcut-link"><i class="fas fa-shopping-basket"></i> PEDIDOS</a>
+                        <a href="{{ url_for('admin.facturas') }}" class="hud-shortcut-link"><i class="fas fa-file-invoice-dollar"></i> FACTURAS</a>
+                    {% else %}
+                        <!-- CLIENT SHORTCUTS -->
+                        <a href="{{ url_for('auth.perfil') }}" class="hud-shortcut-link"><i class="fas fa-user-circle"></i> MI PERFIL</a>
+                        <a href="{{ url_for('motos.index') }}" class="hud-shortcut-link"><i class="fas fa-motorcycle"></i> MIS MOTOS</a>
+                        <a href="{{ url_for('citas.index') }}" class="hud-shortcut-link"><i class="fas fa-calendar-alt"></i> MIS CITAS</a>
+                        <a href="{{ url_for('repuestos.index') }}" class="hud-shortcut-link"><i class="fas fa-shopping-cart"></i> TIENDA</a>
+                        <a href="{{ url_for('cliente.mis_pedidos') }}" class="hud-shortcut-link"><i class="fas fa-box"></i> PEDIDOS</a>
+                        <a href="{{ url_for('cliente.historial') }}" class="hud-shortcut-link"><i class="fas fa-history"></i> FACTURAS</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+      </ul>
+
+      <script>
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const clockEl = document.getElementById('nav-clock');
+            if (clockEl) clockEl.innerText = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+      </script>
+
+      <!-- USER -->
+      <div class="ms-auto d-flex align-items-center gap-3">
+        {% if current_user.is_authenticated %}
+          {% if not current_user.is_admin() and not current_user.is_empleado() %}
+          <a href="{{ url_for('carrito.ver_carrito') }}" class="nav-link position-relative me-3" title="Carrito">
+            <i class="fas fa-shopping-cart" style="font-size: 1.2rem;"></i>
+            {% if session.get('carrito') %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+              {{ session['carrito']|length }}
+            </span>
+            {% endif %}
+          </a>
+          {% endif %}
+          
+          <div class="dropdown">
+            <button class="btn btn-outline-light btn-sm dropdown-toggle rounded-pill px-3" type="button" data-bs-toggle="dropdown">
+              👤 {{ current_user.nombre_completo.split(' ')[0] if current_user.nombre_completo else 'Usuario' }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+              {% if current_user.is_admin() %}
+                <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">Dashboard Admin</a></li>
+              {% else %}
+                <li><a class="dropdown-item" href="{{ url_for('cliente.dashboard') }}">Mi Perfil</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('cliente.mis_pedidos') }}">Mis Pedidos</a></li>
+              {% endif %}
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">Cerrar Sesión</a></li>
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<!-- 🔥 FLASH (COMPONENTE) -->
+{% include 'components/flash.html' %}
+
+<!-- MAIN -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- FOOTER -->
+<footer class="footer-brazo">
+  <div class="container text-center py-5">
+    <div class="footer-nav mb-4 d-flex justify-content-center gap-4 flex-wrap">
+        <a href="{{ url_for('home.index') }}" class="footer-link">INICIO</a>
+        <a href="{{ url_for('home.marcas') }}" class="footer-link">MARCAS</a>
+        <a href="{{ url_for('home.citas_info') }}" class="footer-link">CITAS</a>
+        <a href="{{ url_for('home.repuestos_info') }}" class="footer-link">REPUESTOS</a>
+        <a href="{{ url_for('home.nosotros') }}" class="footer-link">NOSOTROS</a>
+        {% if current_user.is_authenticated and current_user.is_admin() %}
+        <a href="{{ url_for('admin.dashboard') }}" class="footer-link" style="color: var(--gold) !important;">⚡ ADMIN</a>
+        {% endif %}
+    </div>
+
+    <div class="footer-divider mb-4"></div>
+    <p class="text-muted small mb-0">© 2024 Multimarcas Brazo | Potencia y Estilo en cada Kilómetro</p>
+  </div>
+</footer>
+
+<style>
+    .footer-brazo {
+        background: var(--bg-card);
+        border-top: 1px solid var(--border);
+        margin-top: 50px;
+    }
+    .footer-link {
+        text-decoration: none;
+        color: var(--text);
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 1px;
+        transition: 0.3s;
+        opacity: 0.8;
+    }
+    .footer-link:hover {
+        color: var(--red);
+        opacity: 1;
+    }
+    .social-hud-float {
+        position: fixed;
+        top: 120px;
+        right: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        z-index: 10000;
+    }
+
+    .social-hud-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(10, 10, 12, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-right: 3px solid var(--red);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        text-decoration: none;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: -10px 10px 20px rgba(0,0,0,0.5);
+    }
+
+    .social-hud-icon:hover {
+        width: 60px;
+        background: var(--red);
+        color: white;
+        border-color: white;
+        box-shadow: 0 0 25px var(--red-glow);
+        transform: translateX(-5px);
+    }
+
+    .footer-divider {
+        width: 100px;
+        height: 2px;
+        background: var(--red);
+        margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+        .social-hud-float {
+            top: auto;
+            bottom: 30px;
+            right: 20px;
+            flex-direction: row;
+        }
+    }
+</style>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+
+
+{% block extra_js %}{% endblock %}
+
+<!-- Botón de Tema Flotante -->
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Cambiar modo">🌙</button>
+
+<!-- SOCIALS FLOATING (TOP RIGHT) -->
+<div class="social-hud-float">
+    <a href="https://wa.me/573204545930" target="_blank" class="social-hud-icon whatsapp" title="WhatsApp">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+    <a href="https://www.facebook.com/share/1CCzv4MGuq/" target="_blank" class="social-hud-icon facebook" title="Facebook">
+      <i class="fab fa-facebook-f"></i>
+    </a>
+    <a href="https://www.instagram.com/multimarcasbrazo_61?igsh=MTN1dHdnaW9tdGtybA==" target="_blank" class="social-hud-icon instagram" title="Instagram">
+      <i class="fab fa-instagram"></i>
+    </a>
+</div>
+
+</body>
+</html>

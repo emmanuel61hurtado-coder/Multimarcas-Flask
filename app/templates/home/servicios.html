@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Servicios Especializados - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="page-header text-center mb-5">
+    <div class="mb-3">
+      <a href="{{ url_for('cliente.dashboard') if current_user.is_authenticated else url_for('home.index') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+    </div>
+    <h1 class="page-title">Servicios <span>Especializados</span></h1>
+    <p class="page-subtitle">Ofrecemos soluciones técnicas de alta calidad con ingeniería de precisión para tu máquina</p>
+
+    <div class="mt-4 p-4 card-brazo" style="max-width: 800px; margin: 0 auto; border-top: 3px solid var(--red);">
+      <p style="font-size: 16px; line-height: 1.8; color: var(--text);">
+        En nuestro taller, cada servicio se basa en los pilares de la <strong>calidad y la honestidad</strong>. Trabajamos con un nivel de <strong>detalle y delicadeza</strong> único, tratando cada moto como si fuera una obra de arte. Tu confianza es nuestro motor, y tu satisfacción es el resultado de nuestra pasión.
+      </p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Servicio 1 -->
+    <div class="col-md-4">
+      <div class="card-brazo p-4 h-100 shadow-lg">
+        <div style="font-size: 40px; margin-bottom: 20px;">⚡</div>
+        <h3 style="font-family: var(--font-display); font-weight: 900; font-style: italic; transform: var(--racer-skew); color: var(--red);">Mantenimiento de Alto Rendimiento</h3>
+        <p class="text-muted" style="font-size: 14px; margin-top: 15px;">
+          No es un simple cambio de aceite. Es una optimización completa de fluidos, filtros y ajustes de precisión para que tu motor ronronee con poder Racing.
+        </p>
+      </div>
+    </div>
+
+    <!-- Servicio 2 -->
+    <div class="col-md-4">
+      <div class="card-brazo p-4 h-100 shadow-lg" style="border-left: 4px solid var(--gold);">
+        <div style="font-size: 40px; margin-bottom: 20px;">🔧</div>
+        <h3 style="font-family: var(--font-display); font-weight: 900; font-style: italic; transform: var(--racer-skew); color: var(--gold);">Cirugía de Motor</h3>
+        <p class="text-muted" style="font-size: 14px; margin-top: 15px;">
+          Reparaciones profundas con repuestos de grado competición. Devolvemos el alma a tu máquina con una dedicación que solo un equipo de carreras entiende.
+        </p>
+      </div>
+    </div>
+
+    <!-- Servicio 3 -->
+    <div class="col-md-4">
+      <div class="card-brazo p-4 h-100 shadow-lg">
+        <div style="font-size: 40px; margin-bottom: 20px;">💻</div>
+        <h3 style="font-family: var(--font-display); font-weight: 900; font-style: italic; transform: var(--racer-skew); color: var(--red);">Electrónica y Escáner</h3>
+        <p class="text-muted" style="font-size: 14px; margin-top: 15px;">
+          Diagnóstico avanzado para sistemas de inyección y sensores. Si tiene un pulso eléctrico, nosotros lo calibramos para la máxima eficiencia.
+        </p>
+      </div>
+    </div>
+
+    <!-- Servicio 4 -->
+    <div class="col-md-6">
+      <div class="card-brazo p-4 shadow-lg" style="border-right: 4px solid var(--red);">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div style="font-size: 30px;">⛓️</div>
+          <h3 style="font-family: var(--font-display); font-weight: 900; font-style: italic; transform: var(--racer-skew); color: var(--red); margin: 0;">Transmisión y Kit de Arrastre</h3>
+        </div>
+        <p class="text-muted" style="font-size: 14px;">
+          Ajuste perfecto de tensión y lubricación. Aseguramos que cada caballo de fuerza llegue a la rueda trasera sin desperdicios.
+        </p>
+      </div>
+    </div>
+
+    <!-- Servicio 5 -->
+    <div class="col-md-6">
+      <div class="card-brazo p-4 shadow-lg" style="border-right: 4px solid var(--gold);">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div style="font-size: 30px;">🛑</div>
+          <h3 style="font-family: var(--font-display); font-weight: 950; font-style: italic; transform: var(--racer-skew); color: var(--gold); margin: 0;">Sistemas de Frenado Extremo</h3>
+        </div>
+        <p class="text-muted" style="font-size: 14px;">
+          Porque en la pista la potencia no es nada sin control. Mantenimiento de mordazas, discos y purgado de sistemas ABS para una frenada quirúrgica.
+        </p>
+      </div>
+    </div>
+
+    <!-- Servicio 6 (NUEVO) -->
+    <div class="col-md-12">
+      <div class="card-brazo p-4 shadow-lg" style="background: rgba(255, 62, 62, 0.05); border-top: 2px solid var(--red);">
+        <div class="row align-items-center">
+          <div class="col-md-2 text-center" style="font-size: 50px;">🏟️</div>
+          <div class="col-md-10">
+            <h3 style="font-family: var(--font-display); font-weight: 950; font-style: italic; transform: var(--racer-skew); color: var(--red); margin-bottom: 10px;">Suspensión de Gran Premio</h3>
+            <p class="text-muted" style="font-size: 15px;">
+              Calibramos tus barras y amortiguadores para que la moto lea el asfalto. Ajuste de precarga, compresión y rebote personalizado según tu peso y estilo de conducción. Dominio total en cada curva.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5 text-center p-5 card-brazo" style="background: linear-gradient(135deg, var(--red), var(--red-dark)); color: white;">
+    <h2 style="font-family: var(--font-display); font-weight: 950; font-style: italic; transform: var(--racer-skew);">¿Listo para subir de nivel?</h2>
+    <p style="font-size: 18px; margin: 20px 0;">Tu moto merece el trato de un campeón.</p>
+    <a href="{{ url_for('citas_info') }}" class="btn-primary-brazo" style="background: white; color: var(--red); border: none; font-weight: 900;">Agendar mi cita Racing</a>
+  </div>
+</div>
+{% endblock %}

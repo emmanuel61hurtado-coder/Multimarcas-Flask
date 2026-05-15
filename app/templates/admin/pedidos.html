@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Pedidos - Multimarcas Brazo{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="page-header text-center mb-5">
+        <h1 class="page-title">Gestión de <span>Pedidos</span></h1>
+        <p class="page-subtitle">Administra las compras de repuestos realizadas por los clientes</p>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+        <a href="{{ url_for('admin.nueva_venta_fisica') }}" class="btn-primary-brazo" style="padding: 10px 25px;">
+            + Registrar Venta Fisica
+        </a>
+    </div>
+
+    <!-- AGRUPACIÓN JINJA2 -->
+    {% set p_web = pedidos | selectattr('origen', 'equalto', 'Web') | selectattr('estado', 'equalto', 'Pendiente') | list %}
+    {% set ep_web = pedidos | selectattr('origen', 'equalto', 'Web') | selectattr('estado', 'equalto', 'En Preparación') | list %}
+    {% set lpr_web = pedidos | selectattr('origen', 'equalto', 'Web') | selectattr('estado', 'equalto', 'Listo para Retiro') | list %}
+    {% set env_web = pedidos | selectattr('origen', 'equalto', 'Web') | selectattr('estado', 'equalto', 'Enviado') | list %}
+    {% set pendientes_web = p_web + ep_web + lpr_web + env_web %}
+
+    {% set p_fis = pedidos | selectattr('origen', 'equalto', 'Físico') | selectattr('estado', 'equalto', 'Pendiente') | list %}
+    {% set ep_fis = pedidos | selectattr('origen', 'equalto', 'Físico') | selectattr('estado', 'equalto', 'En Preparación') | list %}
+    {% set lpr_fis = pedidos | selectattr('origen', 'equalto', 'Físico') | selectattr('estado', 'equalto', 'Listo para Retiro') | list %}
+    {% set env_fis = pedidos | selectattr('origen', 'equalto', 'Físico') | selectattr('estado', 'equalto', 'Enviado') | list %}
+    {% set pendientes_fisico = p_fis + ep_fis + lpr_fis + env_fis %}
+
+    {% set completados = pedidos | selectattr('estado', 'equalto', 'Completado') | list %}
+    {% set cancelados = pedidos | selectattr('estado', 'equalto', 'Cancelado') | list %}
+
+    <!-- STATS RÁPIDAS -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-2">
+            <div class="card-brazo p-3 text-center stat-card" id="card-p-web" onclick="toggleSection('p-web-section', this)" style="border-top: 3px solid #3b82f6; cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:24px;font-weight:900;">{{ pendientes_web|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:9px;">PENDIENTES WEB</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card-brazo p-3 text-center stat-card" id="card-p-fis" onclick="toggleSection('p-fis-section', this)" style="border-top: 3px solid #f59e0b; cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:24px;font-weight:900;">{{ pendientes_fisico|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:9px;">PENDIENTES TALLER</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-brazo p-3 text-center stat-card" id="card-completados" onclick="toggleSection('completados-section', this)" style="border-top: 3px solid #10b981; cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:24px;font-weight:900;">{{ completados|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:9px;">COMPLETADOS</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card-brazo p-3 text-center stat-card" id="card-cancelados" onclick="toggleSection('cancelados-section', this)" style="border-top: 3px solid #ef4444; cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:24px;font-weight:900;">{{ cancelados|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:9px;">CANCELADOS</small>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card-brazo p-3 text-center stat-card" id="card-total" onclick="showAllSections(this)" style="border-top: 3px solid var(--red); cursor:pointer; transition: all 0.3s;">
+                <div style="font-family:var(--font-display);font-size:24px;font-weight:900; color: var(--text);">{{ pedidos|length }}</div>
+                <small class="text-muted" style="letter-spacing:1px;font-size:9px;">MOSTRAR TODO</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- MACRO RENDER CARD -->
+    {% macro render_pedido_card(pedido) %}
+    {% set pedido_color = 'var(--accent)' if pedido.estado == 'Pendiente' else '#10b981' if pedido.estado == 'Completado' else 'var(--red)' %}
+    {% set pedido_card_style = 'style="border-top: 3px solid ' ~ pedido_color ~ ';"' %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card-brazo p-4 h-100 position-relative overflow-hidden" {{ pedido_card_style | safe }}>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="badge bg-dark border border-secondary text-white" style="font-size: 11px; transform: skewX(-10deg);">#{{ pedido.id }}</span>
+                    <div class="text-muted mt-1" style="font-size: 11px;">{{ pedido.fecha.strftime('%d/%m/%Y %H:%M') }}</div>
+                </div>
+                <span class="badge {% if pedido.origen == 'Físico' %}bg-secondary{% else %}bg-info{% endif %}" style="font-size: 9px; transform: skewX(-10deg);">
+                    {{ 'FISICO' if pedido.origen == 'Físico' else 'WEB' }}
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <div style="font-weight: 800; font-size: 16px; color: var(--text);">{{ pedido.user.nombre_completo if pedido.user else pedido.nombre_cliente_fisico }}</div>
+                <small class="text-muted">{{ pedido.telefono_contacto or (pedido.user.telefono if pedido.user else '') }}</small>
+            </div>
+
+            <div class="mb-4 p-3 rounded bg-dark bg-opacity-50 border border-secondary border-opacity-10">
+                <h6 class="small text-muted mb-2 text-uppercase" style="letter-spacing: 1px;">Artículos:</h6>
+                <div style="font-size: 13px;">
+                    {% for detalle in pedido.items %}
+                    <div class="d-flex justify-content-between">
+                        <span>{{ detalle.cantidad }}x {{ detalle.repuesto.nombre }}</span>
+                        <span class="text-muted">$ {{ "{:,.0f}".format(detalle.subtotal) }}</span>
+                    </div>
+                    {% endfor %}
+                    <div class="mt-2 pt-2 border-top border-secondary border-opacity-20 d-flex justify-content-between align-items-center">
+                        <b style="color: var(--accent);">TOTAL:</b>
+                        <b style="color: #00ff88; font-size: 16px;">$ {{ "{:,.0f}".format(pedido.total) }}</b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-auto pt-3 border-top border-secondary border-opacity-10">
+                <form action="{{ url_for('admin.actualizar_estado_pedido', pid=pedido.id) }}" method="POST">
+                    <label class="form-label-brazo mb-1" style="font-size: 9px;">Cambiar Estado:</label>
+                    <div class="input-group input-group-sm">
+                        <select name="estado" class="form-input-brazo" style="font-size: 11px;">
+                            <option value="Pendiente" {% if pedido.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                            <option value="En Preparación" {% if pedido.estado == 'En Preparación' %}selected{% endif %}>En Preparación</option>
+                            <option value="Listo para Retiro" {% if pedido.estado == 'Listo para Retiro' %}selected{% endif %}>Listo para Retiro</option>
+                            <option value="Enviado" {% if pedido.estado == 'Enviado' %}selected{% endif %}>Enviado</option>
+                            <option value="Completado" {% if pedido.estado == 'Completado' %}selected{% endif %}>Completado</option>
+                            <option value="Cancelado" {% if pedido.estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+                        </select>
+                        <button type="submit" class="btn-primary-brazo" style="font-size: 10px;">OK</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endmacro %}
+
+    <!-- SECCIONES DINÁMICAS -->
+    <div id="p-web-section" class="pedido-section" style="display:block;">
+        <h4 class="mb-4" style="color:#3b82f6; font-family:var(--font-display); font-weight:900; font-style:italic;">PENDIENTES (WEB)</h4>
+        <div class="row g-4 mb-5">
+            {% for pedido in pendientes_web %}
+                {{ render_pedido_card(pedido) }}
+            {% else %}
+                <p class="text-muted">No hay pedidos web pendientes.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="p-fis-section" class="pedido-section" style="display:none;">
+        <h4 class="mb-4" style="color:#f59e0b; font-family:var(--font-display); font-weight:900; font-style:italic;">PENDIENTES (TALLER / FÍSICO)</h4>
+        <div class="row g-4 mb-5">
+            {% for pedido in pendientes_fisico %}
+                {{ render_pedido_card(pedido) }}
+            {% else %}
+                <p class="text-muted">No hay pedidos físicos pendientes.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="completados-section" class="pedido-section" style="display:none;">
+        <h4 class="mb-4" style="color:#10b981; font-family:var(--font-display); font-weight:900; font-style:italic;">COMPLETADOS</h4>
+        <div class="row g-4 mb-5">
+            {% for pedido in completados %}
+                {{ render_pedido_card(pedido) }}
+            {% else %}
+                <p class="text-muted">No hay pedidos completados.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="cancelados-section" class="pedido-section" style="display:none;">
+        <h4 class="mb-4" style="color:#ef4444; font-family:var(--font-display); font-weight:900; font-style:italic;">CANCELADOS</h4>
+        <div class="row g-4 mb-5">
+            {% for pedido in cancelados %}
+                {{ render_pedido_card(pedido) }}
+            {% else %}
+                <p class="text-muted">No hay pedidos cancelados.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .stat-card:hover {
+        background: rgba(255,255,255,0.05);
+        transform: translateY(-2px);
+    }
+    .stat-card.active {
+        background: rgba(232, 0, 13, 0.1);
+        border-color: var(--red) !important;
+    }
+</style>
+
+<script>
+    function toggleSection(sectionId, element) {
+        document.querySelectorAll('.pedido-section').forEach(el => el.style.display = 'none');
+        document.getElementById(sectionId).style.display = 'block';
+
+        document.querySelectorAll('.stat-card').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    function showAllSections(element) {
+        document.querySelectorAll('.pedido-section').forEach(el => el.style.display = 'block');
+        
+        document.querySelectorAll('.stat-card').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    // Activar primera carta por defecto
+    document.getElementById('card-p-web').classList.add('active');
+</script>
+{% endblock %}

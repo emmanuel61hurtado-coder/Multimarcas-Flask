@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Facturas e Historial{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .invoice-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .invoice-card::before {
+      content: "PAGADO";
+      position: absolute;
+      top: 20px;
+      right: -35px;
+      background: #2ecc71;
+      color: white;
+      font-weight: 900;
+      font-size: 12px;
+      padding: 5px 40px;
+      transform: rotate(45deg);
+      letter-spacing: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .invoice-header {
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+    }
+
+    .invoice-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--text-color);
+      margin: 0;
+    }
+
+    .invoice-date {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .invoice-body p {
+      margin-bottom: 5px;
+      font-size: 0.95rem;
+    }
+
+    .invoice-label {
+      font-weight: bold;
+      color: var(--gold);
+    }
+
+    .invoice-footer {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-print {
+      background: var(--bg-card2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      transition: 0.2s;
+    }
+
+    .btn-print:hover {
+      background: var(--red);
+      color: white;
+      border-color: var(--red);
+    }
+
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <a href="{{ url_for('cliente.dashboard') }}" class="btn-back-striking"><i class="fas fa-chevron-left"></i> VOLVER</a>
+        <h2 class="page-title" style="font-size: 28px; margin: 0;">Mi <span>Historial</span></h2>
+    </div>
+  </div>
+
+  {% if facturas %}
+  <div class="row g-3">
+    {% for f in facturas %}
+    <!-- TARJETA SIMPLE -->
+    <div class="col-md-6 col-lg-4">
+      <div class="invoice-card" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#modalClienteFactura{{ f.id }}">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <h4 class="invoice-title" style="font-family: var(--font-display); font-weight: 900; font-style: italic; transform: var(--racer-skew); color: var(--red);">{{ f.numero }}</h4>
+                <div class="invoice-date text-muted" style="font-size: 11px;">{{ f.fecha.strftime('%d/%m/%Y') }}</div>
+            </div>
+            <i class="fas fa-search-plus text-muted opacity-50" style="font-size: 20px;"></i>
+        </div>
+        
+        <div class="mt-3">
+          <p class="mb-1" style="font-size: 13px;"><span class="invoice-label">Moto:</span> {{ f.moto.placa if f.moto else 'N/A' }}</p>
+          <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top" style="border-color: rgba(255,255,255,0.05) !important;">
+              <span class="text-muted" style="font-size: 11px;">{{ f.metodo_pago | upper }}</span>
+              <span style="color: #00ff88; font-weight: 900; font-size: 16px;">$ {{ "{:,.2f}".format(f.total) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- MODALES DE FACTURA PARA EL CLIENTE -->
+  {% for f in facturas %}
+  <div class="modal fade" id="modalClienteFactura{{ f.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text); backdrop-filter: blur(20px);">
+              <div class="modal-header" style="border-bottom: 1px solid var(--border); padding: 25px;">
+                  <h5 class="modal-title" style="font-family: var(--font-display); font-weight: 900; transform: var(--racer-skew); color: var(--red);">DETALLE {{ f.numero }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body p-4" id="print-area-{{ f.id }}">
+                  <div class="row mb-4">
+                      <div class="col-6">
+                          <h4 style="color:var(--red); font-weight:900;">MULTIMARCAS BRAZO</h4>
+                          <p class="text-muted small">Taller Mecánico Especializado</p>
+                      </div>
+                      <div class="col-6 text-end">
+                          <h6 class="text-muted mb-0">CLIENTE</h6>
+                           <p class="mb-0"><strong>{{ f.user.nombre_completo }}</strong></p>
+                          <small class="text-muted d-block">Vehículo: {{ f.moto.marca }} {{ f.moto.modelo }} ({{ f.moto.placa }})</small>
+                          <small class="text-muted" style="font-size: 11px;">Mecánico a cargo: <strong style="color: var(--red);">{{ f.empleado.nombre_completo if f.empleado else 'Sin asignar' }}</strong></small>
+                      </div>
+                  </div>
+                  
+                  <table class="table-brazo">
+                      <thead>
+                          <tr class="text-muted" style="font-size: 11px;">
+                              <th>DESCRIPCIÓN</th>
+                              <th class="text-center">CANT.</th>
+                              <th class="text-end">SUBTOTAL</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for item in f.items %}
+                          <tr style="font-size: 13px;">
+                              <td>{{ item.descripcion }}</td>
+                              <td class="text-center">{{ item.cantidad }}</td>
+                              <td class="text-end">$ {{ "{:,.2f}".format(item.subtotal) }}</td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+                  
+                  <div class="row mt-4">
+                      <div class="col-6">
+                          <p class="text-muted small"><strong>MÉTODO:</strong> {{ f.metodo_pago | upper }}<br>Emitido: {{ f.fecha.strftime('%d/%m/%Y %H:%M') }}</p>
+                      </div>
+                      <div class="col-6 text-end">
+                           <div class="d-flex justify-content-between border-top pt-2" style="font-size: 18px; font-weight: 900; color: #00ff88;">
+                              <span>TOTAL PAGO:</span>
+                              <span>$ {{ "{:,.2f}".format(f.total) }}</span>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- SECCIÓN DE CALIFICACIÓN -->
+                  <div class="mt-4 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1);">
+                      {% if f.calificacion %}
+                          <div class="text-center">
+                              <h6 class="text-muted small mb-2">TU CALIFICACIÓN DEL SERVICIO</h6>
+                              <div class="mb-2">
+                                  {% for i in range(5) %}
+                                      <i class="fas fa-star {{ 'text-warning' if i < f.calificacion else 'text-muted opacity-25' }}"></i>
+                                  {% endfor %}
+                              </div>
+                              <p class="fst-italic small mb-0">"{{ f.comentario_cliente or 'Sin comentario' }}"</p>
+                          </div>
+                      {% else %}
+                          {% if f.empleado_id %}
+                              <form action="{{ url_for('cliente.calificar_servicio', fid=f.id) }}" method="POST">
+                                  <div class="text-center">
+                                      <h6 style="color: var(--accent); font-family: var(--font-display); font-weight: 800; font-size: 14px; margin-bottom: 10px;">
+                                          ¿CÓMO CALIFICAS EL TRABAJO DE {{ f.empleado.nombre_completo | upper }}?
+                                      </h6>
+                                      <div class="d-flex justify-content-center gap-2 mb-3">
+                                          {% for i in range(1, 6) %}
+                                          <div class="form-check form-check-inline p-0 m-0">
+                                              <input class="btn-check" type="radio" name="calificacion" id="star{{ f.id }}_{{ i }}" value="{{ i }}" required>
+                                              <label class="btn btn-outline-secondary btn-sm" for="star{{ f.id }}_{{ i }}" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                                  {{ i }} <i class="fas fa-star ms-1" style="font-size: 10px;"></i>
+                                              </label>
+                                          </div>
+                                          {% endfor %}
+                                      </div>
+                                      <textarea name="comentario" class="form-input-brazo mb-2" placeholder="Opcional: Cuéntanos más sobre el servicio..." rows="2"></textarea>
+                                      <button type="submit" class="btn-primary-brazo btn-sm-brazo w-100" style="justify-content: center;">ENVIAR CALIFICACIÓN</button>
+                                  </div>
+                              </form>
+                          {% else %}
+                              <p class="text-center text-muted small mb-0">Servicio administrativo (Sin mecánico asignado)</p>
+                          {% endif %}
+                      {% endif %}
+                  </div>
+              </div>
+              <div class="modal-footer border-secondary d-flex justify-content-between">
+                  <form action="{{ url_for('cliente.eliminar_factura', fid=f.id) }}" method="POST" style="margin: 0;">
+                      <button type="submit" class="btn-outline-brazo btn-sm-brazo" onclick="return confirm('¿Seguro que deseas eliminar este comprobante de tu historial de forma permanente?');">
+                          <i class="fas fa-trash"></i> ELIMINAR
+                      </button>
+                  </form>
+                  <button class="btn btn-warning" onclick="window.print()"><i class="fas fa-print"></i> IMPRIMIR</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="text-center mt-5">
+    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" style="opacity: 0.5; margin-bottom: 20px;">
+    <h4 style="color: var(--text-muted); margin-top:20px;">Aún no tienes facturas registradas</h4>
+    <p style="color: var(--text-muted); opacity: 0.7;">Cuando se complete tu servicio técnico, la factura aparecerá aquí automáticamente.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
